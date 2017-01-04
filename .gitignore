@@ -7,3 +7,10 @@
 
 # npm ingore
 node_modules/
+
+# project ignore
+build/
+bin/
+
+# idea ignore
+.idea/
