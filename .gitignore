@@ -8,8 +8,9 @@
 ＃js ignore
 *.js.map
 
-# npm ingore
+# npm ignore
 node_modules/
+npm-debug.log
 
 # project ignore
 build/

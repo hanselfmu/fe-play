@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel --plugins transform-regenerator index.js -d build",
-    "regen": "regenerator --include-runtime index.js > build/regen.js"
+    "build": "babel --plugins transform-regenerator src -d build",
+    "regen": "regenerator --include-runtime src/simpleGenerator.js > build/regen.js"
   },
   "author": "Changhao Han",
   "license": "MIT",
