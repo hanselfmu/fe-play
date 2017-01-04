@@ -1,3 +1,6 @@
+# System ignore
+.DS_Store
+
 # sass ignore
 .sass-cache/
 *.css.map
