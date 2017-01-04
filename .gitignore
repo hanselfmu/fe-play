@@ -1,0 +1,9 @@
+# sass ignore
+.sass-cache/
+*.css.map
+
+＃js ignore
+*.js.map
+
+# npm ingore
+node_modules/
