@@ -1,0 +1,18 @@
+{
+  "name": "es6-tests",
+  "version": "1.0.0",
+  "description": "ES6 tests",
+  "main": "src.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-plugin-transform-es2015-classes": "^6.23.0",
+    "babel-preset-env": "^1.1.8"
+  },
+  "scripts": {
+    "build": "babel --plugins transform-es2015-classes src.js -d build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Changhao Han",
+  "license": "MIT"
+}

@@ -3,10 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>JS Generator</title>
-    <script src="src/asyncGenerator.js"></script>
+    <!-- <script src="src/asyncGenerator.js"></script> -->
 </head>
 <body>
 <main>
 </main>
+<script>
+getName();
+
+var getName = function() {
+  console.log(3);
+}
+
+function getName() {
+  console.log(1);
+}
+
+getName();
+
+</script>
 </body>
 </html>
