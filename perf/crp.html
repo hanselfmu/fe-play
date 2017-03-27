@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Critical Rendering Path</title>
+</head>
+<body>
+<p>This is a test page to illustrate impacts on CRP by different types of resources, e.g. JS, CSS, images, from different locations, e.g. head tag, or inside body tag.</p>
+<dl>
+    <h1>Key Concepts</h1>
+    <dt>domLoading</dt><dd>The browser is about to start parsing the first received bytes of the HTML document.</dd>
+    <dt>domInteractive</dt><dd>The browser has finished parsing all of the HTML and DOM construction is complete. DOM is ready.</dd>
+    <dt>domContentLoaded</dt><dd>The DOM is ready, and there are no stylesheets blocking Javascript execution -- meaning the browser can now construct the render tree. Both DOM and CSSOM are ready.</dd>
+    <span>Note that many browsers will start executing their own logic after domContentLoaded event "starts", and will fire "domContentLoadedEventEnd" when this execution finishes.</span>
+    <dt>domComplete</dt><dd>All of the processing is complete, and all of the resources on the page have finished downloading. The loading indicator of the browser will stop now.</dd>
+    <dt>loadEvent</dt><dd>This is the final step, where the browser fires an "onload" event that triggers additional <em>application logic</em>.</dd>
+</dl>
+
+<section>
+    <h1>Dom Interactive</h1>
+    <a href="https://www.w3.org/TR/html5/syntax.html#the-end">Dom Interactive steps.</a>
+    <a href="https://www.w3.org/TR/html5/scripting-1.html">Scripting</a>
+    <p>"DOM Interactive" happens after the UA stops parsing the document.</p>
+    <p>It will then do the following things BEFORE it sets the document readiness to "complete":</p>
+    <ol>
+        <li>close all the open elements, and pop off the "html" node on the stack (which is the topmost node).</li>
+        <li>Executes all the scripts that will execute when the document has finished parsing</li>
+    </ol>
+</section>
+</body>
+</html>
