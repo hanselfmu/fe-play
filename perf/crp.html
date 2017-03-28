@@ -17,15 +17,59 @@
 </dl>
 
 <section>
+    <h1>Dependencies between DOM tree, Javascript, and CSS.</h1>
+    <ul>
+        <li>Synchronous JavaScript can issue a doc.write at any point; hence the DOM tree construction is blocked anytime a synchronous script is encountered;</li>
+        <li>JavaScript can query for a computed style of any object, which means it can also block on CSS.</li>
+    </ul>
+    <p>So basically, DOM construction can’t proceed until JavaScript is executed, and JavaScript can’t proceed until CSSOM is available.</p>
+</section>
+
+<section>
     <h1>Dom Interactive</h1>
     <a href="https://www.w3.org/TR/html5/syntax.html#the-end">Dom Interactive steps.</a>
     <a href="https://www.w3.org/TR/html5/scripting-1.html">Scripting</a>
-    <p>"DOM Interactive" happens after the UA stops parsing the document.</p>
-    <p>It will then do the following things BEFORE it sets the document readiness to "complete":</p>
+    <p>"DOM Interactive" happens after the UA stops parsing the document (including time to parse and execute all synchronous scripts).</p>
+    <p>It will then do the following things AFTER it sets the document readiness to "interactive", and BEFORE it sets the document readiness to "complete":</p>
     <ol>
-        <li>close all the open elements, and pop off the "html" node on the stack (which is the topmost node).</li>
-        <li>Executes all the scripts that will execute when the document has finished parsing</li>
+        <li>Close all the open elements, and pop off the "html" node on the stack (which is the topmost node).</li>
+        <li>Executes all the scripts that will execute when the document has finished parsing, i.e. "deferred" scripts. This involves spinning the event loop and run the scripts one by one (in the order they appear in the markup).</li>
+        <li>Fire an event at the Document named "DOMContentLoaded".</li>
+        <li>Spin the event loop to execute remaining scripts, i.e. "async" scripts.</li>
+        <li>Set the document readiness to "complete".</li>
+        <li>Fire an event named "load".</li>
     </ol>
+    <p>Please note that at step 2, for all the "deferred" scripts to be executed, the CSSOM needs to be ready. This means that DOMContentLoaded also signals CSSOM being ready.</p>
+
+    <p>
+        "Defer" will unblock DOMInteractive, and "async" will unblock DOMInteractive and DOMContentLoaded.
+        "Defer" and "async" implicitly promise that the script will not use "document.write", which will trigger DOM tree reconstruction.
+    </p>
 </section>
+
+<section>
+    <h1>How links and styles (CSS) are loaded</h1>
+
+</section>
+
+<section>
+    <h1>Side Notes</h1>
+    <p>Async scripts are executed in the order of download completion, regardless of markup positions.</p>
+    <p>Defer scripts are executed in the order of markup positions, regardless of download completion.</p>
+</section>
+
+<section>
+    <h1>Keywords</h1>
+    <dl>
+        <dt>parser-inserted</dt><dd></dd>
+        <dt>was-parser-inserted</dt><dd></dd>
+        <dt>force-async</dt><dd></dd>
+        <dt>list of scripts that will execute when the document has finished parsing</dt><dd>"defer" attr, parser-inserted, no "async" attr</dd>
+        <dt>set of scripts that will execute as soon as possible</dt><dd>async scripts, not</dd>
+        <dt>list of scripts that will execute in order as soon as possible</dt><dd>no "async" attr, no "force-async" flag</dd>
+    </dl>
+</section>
+<link rel="stylesheet" href="css/normalize.css">
+
 </body>
 </html>
