@@ -11,4 +11,4 @@ var objCreateChild = Object.create(parent);
 var objCreateChild2 = {};
 objCreateChild2.__proto__ = Object.create(parent);
 
-var es6ClassChild
+
