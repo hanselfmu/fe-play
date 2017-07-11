@@ -4,6 +4,11 @@
 /**
  * 1. normal recursion calls
  */
+
+"use strict";
+
+const stackSize = 100000;
+
 function normalFactorial(n) {
     return n < 1 ? 1 : n * normalFactorial(n - 1);
 }
@@ -13,7 +18,8 @@ console.assert(24 ===  normalFactorial(4));
 console.assert(3628800 === normalFactorial(10));
 
 try {
-    normalFactorial(10000);     // in fact in my Chrome, the "max stack exceeded" throws at 8350.
+    normalFactorial(stackSize);     // in fact in my Chrome, the "max stack exceeded" throws at 8350.
+    console.log('normal factorial stack passed');
 } catch(e) {
     console.log('normal factorial stack size error');
     console.error(e);
@@ -35,7 +41,8 @@ console.assert(24 ===  tailFactorial(4));
 console.assert(3628800 === tailFactorial(10));
 
 try {
-    tailFactorial(10000);
+    tailFactorial(stackSize);
+    console.log('tail factorial stack passed');     // this should pass when --harmony flag is enabled
 } catch(e) {
     console.log('tail factorial stack size error');
     console.error(e);
@@ -80,4 +87,4 @@ console.assert(6 === trampolinedFactorial(3));
 console.assert(24 ===  trampolinedFactorial(4));
 console.assert(3628800 === trampolinedFactorial(10));
 
-console.log(trampolinedFactorial(32768));
+console.log(trampolinedFactorial(stackSize));
