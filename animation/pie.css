@@ -1,0 +1,20 @@
+body {
+    margin: 150px;
+}
+
+[class^=container] {
+    height: 300px;
+}
+
+#canvas-spinner {
+    cursor: pointer;
+}
+
+canvas {
+    transition: transform 3000ms cubic-bezier(0.86, 0, 0.07, 1);
+}
+
+canvas.spinning {
+    transform: rotate(3600deg);
+}
+
