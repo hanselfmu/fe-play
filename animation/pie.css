@@ -10,11 +10,17 @@ body {
     cursor: pointer;
 }
 
-canvas {
-    transition: transform 3000ms cubic-bezier(0.86, 0, 0.07, 1);
+canvas.spinning {
+    /* @keyframes duration | timing-function | delay | iteration-count | direction | fill-mode | play-state | name */
+    animation: 3s cubic-bezier(0.86, 0, 0.07, 1) 0s infinite normal spin;
 }
 
-canvas.spinning {
-    transform: rotate(3600deg);
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(1440deg);
+    }
 }
 
