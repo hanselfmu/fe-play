@@ -4,7 +4,7 @@
   "description": "V8 optimizations and tests.",
   "main": "optimizations.js",
   "scripts": {
-    "test-optimization": "node --trace_opt --trace_deopt --allow-natives-syntax optimizations.js",
+    "start": "node --trace_opt --trace_deopt --allow-natives-syntax optimizations.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

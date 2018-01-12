@@ -1,16 +1,13 @@
-var a = '';
+var leak = null;
 
-function foo() {
-    a = 'private variable';
-    return function bar() {
-        console.log(a);
+var update = function() {
+    var ref = leak;
+    var foo = function() {
+    };
+    leak = {
+        bigMem: new Array(1e6).join('*'),
+        createLeak: function() {
+            console.log('hi again');
+        }
     }
-}
-
-var callAlert = foo();
-
-var a = 'public';
-
-callAlert(); // private variable
-
-console.log(typeof a);
+};

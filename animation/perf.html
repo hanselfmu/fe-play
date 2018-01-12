@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Animation Perf Test</title>
+</head>
+<body>
+<button id="ui">Test Responsiveness</button>
+<div id="res"></div>
+<img src="demo.png" id="original-img">
+<div id="container">
+</div>
+<script>
+  const TARGET_FPS = 60;
+
+  const maxFrameTime = 1000 / TARGET_FPS;
+  const maxSlow = 10;
+
+  let currentTime, previousTime;
+  let drawLoad = 0;
+  let slowCount = 0;
+
+
+  currentTime = previousTime = performance.now();
+  const tick = function() {
+    currentTime = performance.now();
+    const elapsed = currentTime - previousTime;
+    previousTime = currentTime;
+
+    if (elapsed < maxFrameTime || slowCount < maxSlow) {
+      if (elapsed < maxFrameTime) {
+        drawLoad += 1;
+      } else {
+        slowCount++;
+      }
+
+      draw(drawLoad);
+      requestAnimationFrame(tick);
+    } else {
+      // found maximum sustainable load
+      document.getElementById('res').innerHTML = (`could draw ${drawLoad} load in ${Number.parseFloat(maxFrameTime).toFixed(3)} ms, targeting at ${TARGET_FPS} FPS`);
+    }
+  };
+
+  requestAnimationFrame(tick);
+
+  /*********** the drawing part ***************/
+  function draw(load) {
+    function clip(image, path) {
+      const imageWidth = image.width;
+      const imageHeight = image.height;
+      const firstCanvas = document.createElement('canvas');
+      const secondCanvas = document.createElement('canvas');
+
+      const firstCtx = firstCanvas.getContext('2d');
+      const secondCtx = secondCanvas.getContext('2d');
+
+      firstCanvas.width = imageWidth;
+      firstCanvas.height = imageHeight;
+
+      secondCanvas.width = imageWidth;
+      secondCanvas.height = imageHeight;
+
+      firstCtx.beginPath();
+      secondCtx.beginPath();
+      path.forEach(({x, y}) => {
+        // x and y are percentages here
+        const xCoord = Math.floor(imageWidth * x);
+        const yCoord = Math.floor(imageHeight * y);
+
+        firstCtx.lineTo(xCoord, yCoord);
+        secondCtx.lineTo(xCoord, yCoord);
+      });
+
+      const pathInitialX = Math.floor(imageWidth * path[0].x);
+      const pathInitialY = Math.floor(imageWidth * path[0].y);
+
+      firstCtx.lineTo(imageWidth, 0);
+      firstCtx.lineTo(0, 0);
+      firstCtx.lineTo(pathInitialX, pathInitialY);
+      firstCtx.closePath();
+      firstCtx.clip();
+
+      secondCtx.lineTo(imageWidth, imageHeight);
+      secondCtx.lineTo(0, imageHeight);
+      secondCtx.lineTo(pathInitialX, pathInitialY);
+      secondCtx.closePath();
+      secondCtx.clip();
+
+      firstCtx.drawImage(image, 0, 0, imageWidth, imageHeight);
+      secondCtx.drawImage(image, 0, 0, imageWidth, imageHeight);
+
+      firstCanvas.classList.add('top');
+      secondCanvas.classList.add('bottom');
+      return [firstCanvas, secondCanvas];
+    }
+
+    function resetContainer(container) {
+      container.innerHTML = '';
+    }
+
+    function drawClips(container, clips) {
+      clips.forEach(clip => {
+        clip.classList.add('split-piece');
+        container.appendChild(clip);
+      });
+    }
+
+    // main
+    const container = document.getElementById('container');
+    const originalImg = document.getElementById('original-img');
+
+    resetContainer(container);
+    for (let i = 0; i < load; i++) {
+      const clips = clip(originalImg, [{x: 0, y: 0.3}, {x: 0.3, y: 0.7}, {x: 0.5, y: 0.5}, {x: 0.7, y: 0.6}, {x: 0.9, y: 0.3}, {x: 1, y: 0.4}]);
+      drawClips(container, clips);
+    }
+  }
+
+  document.getElementById('ui').addEventListener('click', function() {
+    console.log('UI is responsive');
+  });
+</script>
+</body>
+</html>

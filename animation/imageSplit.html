@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Split Demo</title>
+    <style>
+        #container {
+            width: 100%;
+            height: 1000px;
+        }
+        #original-img {
+            margin-top: 300px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #original-img, .split-piece {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+        }
+
+        .split-piece.top {
+            animation: 2s ease-in-out 0.2s fly;
+        }
+        .split-piece.bottom {
+            animation: 2s ease-in-out 0.2s drop;
+        }
+
+        @keyframes fly {
+            from {
+                top: 0;
+                left: 0;
+                transform: rotate(360deg);
+            }
+
+            to {
+                top: -600px;
+                left: -300px;
+                transform: rotate(160deg);
+            }
+        }
+
+        @keyframes drop {
+            from {
+                top: 0;
+                right: 0;
+                transform: rotate(0deg);
+            }
+
+            to {
+                top: 600px;
+                right: -300px;
+                transform: rotate(200deg);
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="container">
+    <img id="original-img" src="demo.png">
+</div>
+<script>
+  function clip(image, path) {
+    const imageWidth = image.width;
+    const imageHeight = image.height;
+    const firstCanvas = document.createElement('canvas');
+    const secondCanvas = document.createElement('canvas');
+
+    const firstCtx = firstCanvas.getContext('2d');
+    const secondCtx = secondCanvas.getContext('2d');
+
+    firstCanvas.width = imageWidth;
+    firstCanvas.height = imageHeight;
+
+    secondCanvas.width = imageWidth;
+    secondCanvas.height = imageHeight;
+
+    firstCtx.beginPath();
+    secondCtx.beginPath();
+    path.forEach(({x, y}) => {
+      // x and y are percentages here
+      const xCoord = Math.floor(imageWidth * x);
+      const yCoord = Math.floor(imageHeight * y);
+
+      firstCtx.lineTo(xCoord, yCoord);
+      secondCtx.lineTo(xCoord, yCoord);
+
+      console.log(xCoord, yCoord);
+    });
+
+    const pathInitialX = Math.floor(imageWidth * path[0].x);
+    const pathInitialY = Math.floor(imageWidth * path[0].y);
+
+    firstCtx.lineTo(imageWidth, 0);
+    firstCtx.lineTo(0, 0);
+    firstCtx.lineTo(pathInitialX, pathInitialY);
+    firstCtx.closePath();
+    firstCtx.clip();
+
+    secondCtx.lineTo(imageWidth, imageHeight);
+    secondCtx.lineTo(0, imageHeight);
+    secondCtx.lineTo(pathInitialX, pathInitialY);
+    secondCtx.closePath();
+    secondCtx.clip();
+
+    firstCtx.drawImage(image, 0, 0, imageWidth, imageHeight);
+    secondCtx.drawImage(image, 0, 0, imageWidth, imageHeight);
+
+    firstCanvas.classList.add('top');
+    secondCanvas.classList.add('bottom');
+    return [firstCanvas, secondCanvas];
+  }
+
+  function drawClips(container, clips) {
+    clips.forEach(clip => {
+      clip.classList.add('split-piece');
+      container.appendChild(clip);
+    });
+  }
+
+  // main
+  const container = document.getElementById('container');
+  const originalImg = document.getElementById('original-img');
+  originalImg.addEventListener('click', function() {
+    console.log('splitting');
+
+    originalImg.classList.add('hidden');
+
+    const clips = clip(originalImg, [{x: 0, y: 0.3}, {x: 0.3, y: 0.7}, {x: 0.5, y: 0.5}, {x: 0.7, y: 0.6}, {x: 0.9, y: 0.3}, {x: 1, y: 0.4}]);
+    drawClips(container, clips);
+  });
+</script>
+</body>
+</html>

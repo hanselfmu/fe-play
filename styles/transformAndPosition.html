@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transform and Position</title>
+    <style>
+        .parent {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transition: scale 10s ease;
+        }
+
+        .parent.active {
+            transform: translateX(1px);
+        }
+
+        .child {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            right: 0;
+            margin: auto;
+            transform: translateY(-50%);
+            background-color: lightskyblue;
+        }
+    </style>
+</head>
+<body>
+<div id="parent" class="parent">
+    <div class="child">
+        <p>Hello World</p>
+        <p>Hello World</p>
+        <p>Hello World</p>
+        <p>Hello World</p>
+        <p>Hello World</p>
+        <p>Hello World</p>
+        <p>Hello World</p>
+        <p>Hello World</p>
+        <p>Hello World</p>
+        <p>Hello World</p>
+        <p>Hello World</p>
+        <p>Hello World</p>
+        <p>Hello World</p>
+        <p>Hello World</p>
+        <p>Hello World</p>
+    </div>
+</div>
+<script>
+    setTimeout(function() {
+        document.getElementById('parent').classList.add('active');
+    }, 1000);
+</script>
+</body>
+</html>

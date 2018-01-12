@@ -2,15 +2,13 @@
  * Created by chan on 3/1/17.
  */
 
-//Function that contains the pattern to be inspected (using an `eval` statement)
-function exampleFunction() {
+function testFn() {
     var args = new Array(arguments.length);
-    for (var i = 0, l = arguments.length; i < l; i++) {
+    for (var i = 0; i < arguments.length; i++) {
         args[i] = arguments[i];
     }
 
     console.log(arguments);
-
     return args;
 }
 
@@ -27,13 +25,13 @@ function printStatus(fn) {
 }
 
 //Fill type-info
-exampleFunction();
+testFn();
 // 2 calls are needed to go from uninitialized -> pre-monomorphic -> monomorphic
-exampleFunction();
+testFn();
 
-%OptimizeFunctionOnNextCall(exampleFunction);
+%OptimizeFunctionOnNextCall(testFn);
 //The next call
-exampleFunction();
+testFn();
 
 //Check
-printStatus(exampleFunction);
+printStatus(testFn);

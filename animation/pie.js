@@ -46,3 +46,7 @@ canvasSpinner.addEventListener('click', () => {
         canvas.classList.remove('spinning');
     }, 8000);
 });
+
+
+console.log('initialized');
+
