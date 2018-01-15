@@ -1,0 +1,14 @@
+{
+  "name": "fe-notes",
+  "version": "1.0.0",
+  "description": "Simple Express server for static contents in fe-notes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Changhao Han",
+  "license": "ISC",
+  "dependencies": {
+    "pm2": "^2.9.1"
+  }
+}
