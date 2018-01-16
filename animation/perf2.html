@@ -107,13 +107,13 @@ Size: <input id="img-size"> px
       firstCtx.lineTo(0, 0);
       firstCtx.lineTo(pathInitialX, pathInitialY);
       firstCtx.closePath();
-//      firstCtx.clip();
+      firstCtx.clip();
 
       secondCtx.lineTo(imageWidth, imageHeight);
       secondCtx.lineTo(0, imageHeight);
       secondCtx.lineTo(pathInitialX, pathInitialY);
       secondCtx.closePath();
-//      secondCtx.clip();
+      secondCtx.clip();
 
       firstCtx.drawImage(image, 0, 0, imageWidth, imageHeight);
       secondCtx.drawImage(image, 0, 0, imageWidth, imageHeight);
