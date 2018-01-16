@@ -33,11 +33,16 @@ Size: <input id="img-size"> px
 <div id="container">
 </div>
 <script>
+  const container = document.getElementById('container');
+  let testCount = 0;
+
   function testPerf() {
     const imgWidth = document.getElementById('img-size').value;
     const imgSource = document.getElementById('source-img');
     imgSource.style.width = `${imgWidth}px`;
-    const imgSize = `${imgSource.width}px * ${imgSource.height}px`;
+    const sourceWidth = imgSource.width;
+    const sourceHeight = imgSource.height;
+    const imgSizeStr = `${sourceWidth}px * ${sourceHeight}px`;
 
     const TARGET_FPS = document.getElementById('fps').value || 60;
 
@@ -47,35 +52,31 @@ Size: <input id="img-size"> px
     let currentTime, previousTime;
     let drawLoad = 0;
     let slowCount = 0;
-
     currentTime = previousTime = performance.now();
-    const tick = function() {
-      currentTime = performance.now();
-      const elapsed = currentTime - previousTime;
-      previousTime = currentTime;
 
-      if (elapsed < maxFrameTime || slowCount < maxSlow) {
-        if (elapsed < maxFrameTime) {
-          drawLoad += 1;
-        } else {
-          slowCount++;
-        }
+    let timeElapsed = currentTime - previousTime;
+    while (timeElapsed < maxFrameTime || slowCount < maxSlow) {
+      container.innerHTML = '';
 
-        draw(drawLoad);
-        requestAnimationFrame(tick);
-        document.getElementById('container').innerHTML = '';
-      } else {
-        // found maximum sustainable load
-        document.getElementById('res').innerHTML = (`could draw ${drawLoad} splits in ${Number.parseFloat(maxFrameTime).toFixed(3)} ms, targeting at ${TARGET_FPS} FPS, img size ${imgSize}`);
+      if (timeElapsed < maxFrameTime) {
+        drawLoad++;
+        slowCount = 0;
       }
-    };
+      else
+        slowCount++;
 
-    requestAnimationFrame(tick);
+      previousTime = performance.now();
+      draw(imgSource, sourceWidth, sourceHeight, drawLoad);
+      currentTime = performance.now();
+      timeElapsed = currentTime - previousTime;
+    }
+
+    document.getElementById('res').innerHTML = (`Run ${testCount}: could draw ${drawLoad} splits in ${Number.parseFloat(maxFrameTime).toFixed(3)} ms, targeting at ${TARGET_FPS} FPS, img size ${imgSizeStr}`);
   }
 
   /*********** the drawing part ***************/
-  function draw(load) {
-    function clip(image, imageWidth, imageHeight, path) {
+  function draw(imgSource, imgWidth, imgHeight, load) {
+    function split(image, imageWidth, imageHeight, path) {
       const firstCanvas = document.createElement('canvas');
       const secondCanvas = document.createElement('canvas');
 
@@ -106,13 +107,13 @@ Size: <input id="img-size"> px
       firstCtx.lineTo(0, 0);
       firstCtx.lineTo(pathInitialX, pathInitialY);
       firstCtx.closePath();
-      firstCtx.clip();
+//      firstCtx.clip();
 
       secondCtx.lineTo(imageWidth, imageHeight);
       secondCtx.lineTo(0, imageHeight);
       secondCtx.lineTo(pathInitialX, pathInitialY);
       secondCtx.closePath();
-      secondCtx.clip();
+//      secondCtx.clip();
 
       firstCtx.drawImage(image, 0, 0, imageWidth, imageHeight);
       secondCtx.drawImage(image, 0, 0, imageWidth, imageHeight);
@@ -130,19 +131,14 @@ Size: <input id="img-size"> px
     }
 
     // main
-    const container = document.getElementById('container');
-    const originalImg = document.getElementById('source-img');
-
-    const imgWidth = originalImg.width;
-    const imgHeight = originalImg.height;
-
     for (let i = 0; i < load; i++) {
-      const clips = clip(originalImg, imgWidth, imgHeight, [{x: 0, y: 0.3}, {x: 0.3, y: 0.7}, {x: 0.5, y: 0.5}, {x: 0.7, y: 0.6}, {x: 0.9, y: 0.3}, {x: 1, y: 0.4}]);
+      const clips = split(imgSource, imgWidth, imgHeight, [{x: 0, y: 0.3}, {x: 0.3, y: 0.7}, {x: 0.5, y: 0.5}, {x: 0.7, y: 0.6}, {x: 0.9, y: 0.3}, {x: 1, y: 0.4}]);
       drawClips(container, clips);
     }
   }
 
   document.getElementById('test').addEventListener('click', function() {
+    testCount++;
     testPerf();
   });
 </script>
