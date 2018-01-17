@@ -22,9 +22,45 @@
             width: 60px;
             padding: 15px;
         }
+
+        .split-piece.top {
+            animation: 2s ease-in-out 0.2s fly;
+        }
+        .split-piece.bottom {
+            animation: 2s ease-in-out 0.2s drop;
+        }
+
+        @keyframes fly {
+            from {
+                top: 0;
+                left: 0;
+                transform: rotate(360deg);
+            }
+
+            to {
+                top: -600px;
+                left: -300px;
+                transform: rotate(160deg);
+            }
+        }
+
+        @keyframes drop {
+            from {
+                top: 0;
+                right: 0;
+                transform: rotate(0deg);
+            }
+
+            to {
+                top: 600px;
+                right: -300px;
+                transform: rotate(200deg);
+            }
+        }
     </style>
 </head>
 <body>
+<a target="_blank" href="https://cs.chromium.org/chromium/src/gpu/config/software_rendering_list.json">software rendering list</a>
 <div id="res"></div>
 <button id="test">Splitting picture with canvas</button>
 FPS: <input id="fps">
@@ -33,8 +69,33 @@ Size: <input id="img-size"> px
 <div id="container">
 </div>
 <script>
+
+  if ('performance' in window === false) {
+    window.performance = {};
+  }
+
+  if ('now' in window.performance === false){
+
+    var nowOffset = Date.now();
+    window.performance.now = function now(){
+      return Date.now() - nowOffset;
+    }
+  }
+
+  /************************
+   * notes
+   *
+   * "split" involves 2 step: making clips for 2 canvases, and drawing images into these clipped regions.
+   * Whichever step happens first takes a significant longer time to finish, and the second operation takes much shorter.
+   * The first step growth rate against image size growth is bigger, while the second step is smaller.
+   * **********************/
+
   const container = document.getElementById('container');
   let testCount = 0;
+  let clipTotal = 0;
+  let clipCount = 0;
+  let drawTotal = 0;
+  let drawCount = 0;
 
   function testPerf() {
     const imgWidth = document.getElementById('img-size').value;
@@ -69,13 +130,34 @@ Size: <input id="img-size"> px
       draw(imgSource, sourceWidth, sourceHeight, drawLoad);
       currentTime = performance.now();
       timeElapsed = currentTime - previousTime;
+
+      if (drawLoad > 1000) {
+       console.log('breaking');
+       break;
+      }
     }
 
+    console.log(`${clipCount} times of clipping takes ${clipTotal}ms; ${drawCount} times of drawImage takes ${drawTotal}ms`);
+    console.log(`average clipping is ${clipTotal / clipCount}ms; average drawImage is ${drawTotal / drawCount}ms`);
     document.getElementById('res').innerHTML = (`Run ${testCount}: could draw ${drawLoad} splits in ${Number.parseFloat(maxFrameTime).toFixed(3)} ms, targeting at ${TARGET_FPS} FPS, img size ${imgSizeStr}`);
   }
 
   /*********** the drawing part ***************/
   function draw(imgSource, imgWidth, imgHeight, load) {
+    function simplerSplit() {
+      const firstCanvas = document.createElement('canvas');
+      const secondCanvas = document.createElement('canvas');
+
+      const firstCtx = firstCanvas.getContext('2d');
+      const secondCtx = secondCanvas.getContext('2d');
+
+      firstCtx.clip();
+      secondCtx.clip();
+
+      return [firstCanvas, secondCanvas];
+    }
+
+
     function split(image, imageWidth, imageHeight, path) {
       const firstCanvas = document.createElement('canvas');
       const secondCanvas = document.createElement('canvas');
@@ -107,16 +189,31 @@ Size: <input id="img-size"> px
       firstCtx.lineTo(0, 0);
       firstCtx.lineTo(pathInitialX, pathInitialY);
       firstCtx.closePath();
+
+      let beforeClip = performance.now();
       firstCtx.clip();
+      clipCount++;
+      let afterClip = performance.now();
+      clipTotal += afterClip - beforeClip;
+
 
       secondCtx.lineTo(imageWidth, imageHeight);
       secondCtx.lineTo(0, imageHeight);
       secondCtx.lineTo(pathInitialX, pathInitialY);
       secondCtx.closePath();
-      secondCtx.clip();
 
+      beforeClip = performance.now();
+      secondCtx.clip();
+      clipCount++;
+      afterClip = performance.now();
+      clipTotal += afterClip - beforeClip;
+
+      let beforeDraw = performance.now();
       firstCtx.drawImage(image, 0, 0, imageWidth, imageHeight);
       secondCtx.drawImage(image, 0, 0, imageWidth, imageHeight);
+      let afterDraw = performance.now();
+      drawTotal += afterDraw - beforeDraw;
+      drawCount += 2;
 
       firstCanvas.classList.add('top');
       secondCanvas.classList.add('bottom');
@@ -133,12 +230,19 @@ Size: <input id="img-size"> px
     // main
     for (let i = 0; i < load; i++) {
       const clips = split(imgSource, imgWidth, imgHeight, [{x: 0, y: 0.3}, {x: 0.3, y: 0.7}, {x: 0.5, y: 0.5}, {x: 0.7, y: 0.6}, {x: 0.9, y: 0.3}, {x: 1, y: 0.4}]);
+//      const clips = simplerSplit();
       drawClips(container, clips);
     }
   }
 
   document.getElementById('test').addEventListener('click', function() {
     testCount++;
+
+    clipTotal = 0;
+    clipCount = 0;
+    drawTotal = 0;
+    drawCount = 0;
+
     testPerf();
   });
 </script>
