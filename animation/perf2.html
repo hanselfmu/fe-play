@@ -55,32 +55,32 @@ Size: <input id="img-size"> px
    * The first step growth rate against image size growth is bigger, while the second step is smaller.
    * **********************/
 
-  const container = document.getElementById('container');
-  let testCount = 0;
-  let clipTotal = 0;
-  let clipCount = 0;
-  let drawTotal = 0;
-  let drawCount = 0;
+  var container = document.getElementById('container');
+  var testCount = 0;
+  var clipTotal = 0;
+  var clipCount = 0;
+  var drawTotal = 0;
+  var drawCount = 0;
 
   function testPerf() {
-    const imgWidth = document.getElementById('img-size').value;
-    const imgSource = document.getElementById('source-img');
-    imgSource.style.width = `${imgWidth}px`;
-    const sourceWidth = imgSource.width;
-    const sourceHeight = imgSource.height;
-    const imgSizeStr = `${sourceWidth}px * ${sourceHeight}px`;
+    var imgWidth = document.getElementById('img-size').value;
+    var imgSource = document.getElementById('source-img');
+    imgSource.style.width = imgWidth + 'px';
+    var sourceWidth = imgSource.width;
+    var sourceHeight = imgSource.height;
+    var imgSizeStr = sourceWidth + 'px * ' + sourceHeight + 'px';
 
-    const TARGET_FPS = document.getElementById('fps').value || 60;
+    var TARGET_FPS = document.getElementById('fps').value || 60;
 
-    const maxFrameTime = 1000 / TARGET_FPS;
-    const maxSlow = 10;
+    var maxFrameTime = 1000 / TARGET_FPS;
+    var maxSlow = 10;
 
-    let currentTime, previousTime;
-    let drawLoad = 0;
-    let slowCount = 0;
+    var currentTime, previousTime;
+    var drawLoad = 0;
+    var slowCount = 0;
     currentTime = previousTime = performance.now();
 
-    let timeElapsed = currentTime - previousTime;
+    var timeElapsed = currentTime - previousTime;
     while (timeElapsed < maxFrameTime || slowCount < maxSlow) {
       container.innerHTML = '';
 
@@ -102,13 +102,13 @@ Size: <input id="img-size"> px
       }
     }
 
-    const p1 = document.createElement('p');
-    p1.innerHTML = `Run ${testCount}: could draw ${drawLoad} splits in ${Number.parseFloat(maxFrameTime).toFixed(3)} ms, targeting at ${TARGET_FPS} FPS, img size ${imgSizeStr}`;
-    const p2 = document.createElement('p');
-    p2.innerHTML = `${clipCount} times of clipping takes ${Number.parseFloat(clipTotal).toFixed(3)}ms; ${drawCount} times of drawImage takes ${Number.parseFloat(drawTotal).toFixed(3)}ms`;
-    const p3 = document.createElement('p');
-    p3.innerHTML = `average clipping is ${Number.parseFloat(clipTotal / clipCount).toFixed(6)}ms; average drawImage is ${Number.parseFloat(drawTotal / drawCount).toFixed(6)}ms`;
-    const res = document.getElementById('res');
+    var p1 = document.createElement('p');
+    p1.innerHTML = 'Run ' + testCount + ' could draw ' + drawLoad + ' splits in ' + Number.parseFloat(maxFrameTime).toFixed(3) + ' ms, targeting at ' + TARGET_FPS + ' FPS, img size ' + imgSizeStr;
+    var p2 = document.createElement('p');
+    p2.innerHTML = clipCount + ' times of clipping takes ' + Number.parseFloat(clipTotal).toFixed(3) + 'ms; ' + drawCount + ' times of drawImage takes ' + Number.parseFloat(drawTotal).toFixed(3) + 'ms';
+    var p3 = document.createElement('p');
+    p3.innerHTML = 'average clipping is ' + Number.parseFloat(clipTotal / clipCount).toFixed(6) + 'ms; average drawImage is ' + Number.parseFloat(drawTotal / drawCount).toFixed(6) + 'ms';
+    var res = document.getElementById('res');
     res.appendChild(p1);
     res.appendChild(p2);
     res.appendChild(p3);
@@ -117,11 +117,11 @@ Size: <input id="img-size"> px
   /*********** the drawing part ***************/
   function draw(imgSource, imgWidth, imgHeight, load) {
     function simplerSplit() {
-      const firstCanvas = document.createElement('canvas');
-      const secondCanvas = document.createElement('canvas');
+      var firstCanvas = document.createElement('canvas');
+      var secondCanvas = document.createElement('canvas');
 
-      const firstCtx = firstCanvas.getContext('2d');
-      const secondCtx = secondCanvas.getContext('2d');
+      var firstCtx = firstCanvas.getContext('2d');
+      var secondCtx = secondCanvas.getContext('2d');
 
       firstCtx.clip();
       secondCtx.clip();
@@ -130,11 +130,11 @@ Size: <input id="img-size"> px
     }
 
     function split(image, imageWidth, imageHeight, path) {
-      const firstCanvas = document.createElement('canvas');
-      const secondCanvas = document.createElement('canvas');
+      var firstCanvas = document.createElement('canvas');
+      var secondCanvas = document.createElement('canvas');
 
-      const firstCtx = firstCanvas.getContext('2d');
-      const secondCtx = secondCanvas.getContext('2d');
+      var firstCtx = firstCanvas.getContext('2d');
+      var secondCtx = secondCanvas.getContext('2d');
 
       firstCanvas.width = imageWidth;
       firstCanvas.height = imageHeight;
@@ -146,15 +146,15 @@ Size: <input id="img-size"> px
       secondCtx.beginPath();
       path.forEach(({x, y}) => {
         // x and y are percentages here
-        const xCoord = Math.floor(imageWidth * x);
-        const yCoord = Math.floor(imageHeight * y);
+        var xCoord = Math.floor(imageWidth * x);
+        var yCoord = Math.floor(imageHeight * y);
 
         firstCtx.lineTo(xCoord, yCoord);
         secondCtx.lineTo(xCoord, yCoord);
       });
 
-      const pathInitialX = Math.floor(imageWidth * path[0].x);
-      const pathInitialY = Math.floor(imageWidth * path[0].y);
+      var pathInitialX = Math.floor(imageWidth * path[0].x);
+      var pathInitialY = Math.floor(imageWidth * path[0].y);
 
       firstCtx.lineTo(imageWidth, 0);
       firstCtx.lineTo(0, 0);
@@ -166,17 +166,17 @@ Size: <input id="img-size"> px
       secondCtx.lineTo(pathInitialX, pathInitialY);
       secondCtx.closePath();
 
-      let beforeClip = performance.now();
+      var beforeClip = performance.now();
       firstCtx.clip();
       secondCtx.clip();
-      let afterClip = performance.now();
+      var afterClip = performance.now();
       clipTotal += afterClip - beforeClip;
       clipCount += 2;
 
-      let beforeDraw = performance.now();
+      var beforeDraw = performance.now();
       firstCtx.drawImage(image, 0, 0, imageWidth, imageHeight);
       secondCtx.drawImage(image, 0, 0, imageWidth, imageHeight);
-      let afterDraw = performance.now();
+      var afterDraw = performance.now();
       drawTotal += afterDraw - beforeDraw;
       drawCount += 2;
 
@@ -193,9 +193,9 @@ Size: <input id="img-size"> px
     }
 
     // main
-    for (let i = 0; i < load; i++) {
-      const clips = split(imgSource, imgWidth, imgHeight, [{x: 0, y: 0.3}, {x: 0.3, y: 0.7}, {x: 0.5, y: 0.5}, {x: 0.7, y: 0.6}, {x: 0.9, y: 0.3}, {x: 1, y: 0.4}]);
-//      const clips = simplerSplit();
+    for (var i = 0; i < load; i++) {
+      var clips = split(imgSource, imgWidth, imgHeight, [{x: 0, y: 0.3}, {x: 0.3, y: 0.7}, {x: 0.5, y: 0.5}, {x: 0.7, y: 0.6}, {x: 0.9, y: 0.3}, {x: 1, y: 0.4}]);
+//      var clips = simplerSplit();
       drawClips(container, clips);
     }
   }
