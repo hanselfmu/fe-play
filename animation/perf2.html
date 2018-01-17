@@ -22,41 +22,6 @@
             width: 60px;
             padding: 15px;
         }
-
-        .split-piece.top {
-            animation: 2s ease-in-out 0.2s fly;
-        }
-        .split-piece.bottom {
-            animation: 2s ease-in-out 0.2s drop;
-        }
-
-        @keyframes fly {
-            from {
-                top: 0;
-                left: 0;
-                transform: rotate(360deg);
-            }
-
-            to {
-                top: -600px;
-                left: -300px;
-                transform: rotate(160deg);
-            }
-        }
-
-        @keyframes drop {
-            from {
-                top: 0;
-                right: 0;
-                transform: rotate(0deg);
-            }
-
-            to {
-                top: 600px;
-                right: -300px;
-                transform: rotate(200deg);
-            }
-        }
     </style>
 </head>
 <body>
@@ -137,9 +102,16 @@ Size: <input id="img-size"> px
       }
     }
 
-    console.log(`${clipCount} times of clipping takes ${clipTotal}ms; ${drawCount} times of drawImage takes ${drawTotal}ms`);
-    console.log(`average clipping is ${clipTotal / clipCount}ms; average drawImage is ${drawTotal / drawCount}ms`);
-    document.getElementById('res').innerHTML = (`Run ${testCount}: could draw ${drawLoad} splits in ${Number.parseFloat(maxFrameTime).toFixed(3)} ms, targeting at ${TARGET_FPS} FPS, img size ${imgSizeStr}`);
+    const p1 = document.createElement('p');
+    p1.innerHTML = `Run ${testCount}: could draw ${drawLoad} splits in ${Number.parseFloat(maxFrameTime).toFixed(3)} ms, targeting at ${TARGET_FPS} FPS, img size ${imgSizeStr}`;
+    const p2 = document.createElement('p');
+    p2.innerHTML = `${clipCount} times of clipping takes ${Number.parseFloat(clipTotal).toFixed(3)}ms; ${drawCount} times of drawImage takes ${Number.parseFloat(drawTotal).toFixed(3)}ms`;
+    const p3 = document.createElement('p');
+    p3.innerHTML = `average clipping is ${Number.parseFloat(clipTotal / clipCount).toFixed(6)}ms; average drawImage is ${Number.parseFloat(drawTotal / drawCount).toFixed(6)}ms`;
+    const res = document.getElementById('res');
+    res.appendChild(p1);
+    res.appendChild(p2);
+    res.appendChild(p3);
   }
 
   /*********** the drawing part ***************/
@@ -156,7 +128,6 @@ Size: <input id="img-size"> px
 
       return [firstCanvas, secondCanvas];
     }
-
 
     function split(image, imageWidth, imageHeight, path) {
       const firstCanvas = document.createElement('canvas');
@@ -190,23 +161,17 @@ Size: <input id="img-size"> px
       firstCtx.lineTo(pathInitialX, pathInitialY);
       firstCtx.closePath();
 
-      let beforeClip = performance.now();
-      firstCtx.clip();
-      clipCount++;
-      let afterClip = performance.now();
-      clipTotal += afterClip - beforeClip;
-
-
       secondCtx.lineTo(imageWidth, imageHeight);
       secondCtx.lineTo(0, imageHeight);
       secondCtx.lineTo(pathInitialX, pathInitialY);
       secondCtx.closePath();
 
-      beforeClip = performance.now();
+      let beforeClip = performance.now();
+      firstCtx.clip();
       secondCtx.clip();
-      clipCount++;
-      afterClip = performance.now();
+      let afterClip = performance.now();
       clipTotal += afterClip - beforeClip;
+      clipCount += 2;
 
       let beforeDraw = performance.now();
       firstCtx.drawImage(image, 0, 0, imageWidth, imageHeight);
