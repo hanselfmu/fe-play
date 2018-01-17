@@ -22,6 +22,72 @@
             width: 60px;
             padding: 15px;
         }
+        .split-piece.top {
+            -webkit-animation: 10s ease-in-out 0.2s fly;
+            animation: 10s ease-in-out 0.2s fly;
+        }
+        .split-piece.bottom {
+            -webkit-animation: 10s ease-in-out 0.2s drop;
+            animation: 10s ease-in-out 0.2s drop;
+        }
+
+        @-webkit-keyframes fly {
+            from {
+                top: 0;
+                left: 0;
+                -webkit-transform: rotate(1800deg);
+                transform: rotate(1800deg);
+            }
+
+            to {
+                top: -600px;
+                left: -300px;
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+        }
+        @keyframes fly {
+            from {
+                top: 0;
+                left: 0;
+                -webkit-transform: rotate(1800deg);
+                transform: rotate(1800deg);
+            }
+
+            to {
+                top: -600px;
+                left: -300px;
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+        }
+
+        @-webkit-keyframes drop {
+            from {
+                top: 0;
+                right: 0;
+                transform: rotate(0deg);
+            }
+
+            to {
+                top: 600px;
+                right: -300px;
+                transform: rotate(1800deg);
+            }
+        }
+        @keyframes drop {
+            from {
+                top: 0;
+                right: 0;
+                transform: rotate(0deg);
+            }
+
+            to {
+                top: 600px;
+                right: -300px;
+                transform: rotate(1800deg);
+            }
+        }
     </style>
 </head>
 <body>
@@ -34,7 +100,6 @@ Size: <input id="img-size"> px
 <div id="container">
 </div>
 <script>
-
   if ('performance' in window === false) {
     window.performance = {};
   }
@@ -46,6 +111,8 @@ Size: <input id="img-size"> px
       return Date.now() - nowOffset;
     }
   }
+
+  document.getElementById('res').innerHTML = 'added performance polyfill';
 
   /************************
    * notes
@@ -102,32 +169,21 @@ Size: <input id="img-size"> px
       }
     }
 
-    var p1 = document.createElement('p');
-    p1.innerHTML = 'Run ' + testCount + ' could draw ' + drawLoad + ' splits in ' + Number.parseFloat(maxFrameTime).toFixed(3) + ' ms, targeting at ' + TARGET_FPS + ' FPS, img size ' + imgSizeStr;
-    var p2 = document.createElement('p');
-    p2.innerHTML = clipCount + ' times of clipping takes ' + Number.parseFloat(clipTotal).toFixed(3) + 'ms; ' + drawCount + ' times of drawImage takes ' + Number.parseFloat(drawTotal).toFixed(3) + 'ms';
-    var p3 = document.createElement('p');
-    p3.innerHTML = 'average clipping is ' + Number.parseFloat(clipTotal / clipCount).toFixed(6) + 'ms; average drawImage is ' + Number.parseFloat(drawTotal / drawCount).toFixed(6) + 'ms';
     var res = document.getElementById('res');
+
+    var p1 = document.createElement('p');
+    p1.innerHTML = 'Run ' + testCount + ' could draw ' + drawLoad + ' splits in ' + maxFrameTime + ' ms, targeting at ' + TARGET_FPS + ' FPS, img size ' + imgSizeStr;
+//    var p2 = document.createElement('p');
+//    p2.innerHTML = clipCount + ' times of clipping takes ' + Number.parseFloat(clipTotal).toFixed(3) + 'ms; ' + drawCount + ' times of drawImage takes ' + Number.parseFloat(drawTotal).toFixed(3) + 'ms';
+//    var p3 = document.createElement('p');
+//    p3.innerHTML = 'average clipping is ' + Number.parseFloat(clipTotal / clipCount).toFixed(6) + 'ms; average drawImage is ' + Number.parseFloat(drawTotal / drawCount).toFixed(6) + 'ms';
     res.appendChild(p1);
-    res.appendChild(p2);
-    res.appendChild(p3);
+//    res.appendChild(p2);
+//    res.appendChild(p3);
+
   }
 
-  /*********** the drawing part ***************/
   function draw(imgSource, imgWidth, imgHeight, load) {
-    function simplerSplit() {
-      var firstCanvas = document.createElement('canvas');
-      var secondCanvas = document.createElement('canvas');
-
-      var firstCtx = firstCanvas.getContext('2d');
-      var secondCtx = secondCanvas.getContext('2d');
-
-      firstCtx.clip();
-      secondCtx.clip();
-
-      return [firstCanvas, secondCanvas];
-    }
 
     function split(image, imageWidth, imageHeight, path) {
       var firstCanvas = document.createElement('canvas');
@@ -144,10 +200,10 @@ Size: <input id="img-size"> px
 
       firstCtx.beginPath();
       secondCtx.beginPath();
-      path.forEach(({x, y}) => {
+      path.forEach(function(coord) {
         // x and y are percentages here
-        var xCoord = Math.floor(imageWidth * x);
-        var yCoord = Math.floor(imageHeight * y);
+        var xCoord = Math.floor(imageWidth * coord.x);
+        var yCoord = Math.floor(imageHeight * coord.y);
 
         firstCtx.lineTo(xCoord, yCoord);
         secondCtx.lineTo(xCoord, yCoord);
@@ -186,12 +242,11 @@ Size: <input id="img-size"> px
     }
 
     function drawClips(container, clips) {
-      clips.forEach(clip => {
+      clips.forEach(function(clip) {
         clip.classList.add('split-piece');
         container.appendChild(clip);
       });
     }
-
     // main
     for (var i = 0; i < load; i++) {
       var clips = split(imgSource, imgWidth, imgHeight, [{x: 0, y: 0.3}, {x: 0.3, y: 0.7}, {x: 0.5, y: 0.5}, {x: 0.7, y: 0.6}, {x: 0.9, y: 0.3}, {x: 1, y: 0.4}]);
@@ -199,7 +254,6 @@ Size: <input id="img-size"> px
       drawClips(container, clips);
     }
   }
-
   document.getElementById('test').addEventListener('click', function() {
     testCount++;
 

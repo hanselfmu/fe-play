@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Basemark Web 3.0 | Main page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Modernizr -->
+    <script type="text/javascript" src="/js/run/modernizr.min.js"></script>
+
+    <!-- Engine -->
+    <script type="text/javascript" src="/js/run/BasemarkWebEngine.js"></script>
+
+    <style type="text/css">
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: 'Open Sans', sans-serif;
+        }
+        #brand-header {
+            background-color: #00a2ff;
+            height: 70px;
+            margin-right: auto;
+            margin-left: auto;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        #brand-header img {
+            height: 55px;
+            margin-top: 7px;
+        }
+
+    </style>
+</head>
+<style>
+    body { margin: 0; }
+    canvas { width: 100%; height: 100% }
+</style>
+
+<script type="text/javascript" src="../__includes/full_scene/includes/three.webgl2.js"></script><script type="text/javascript" src="../__includes/full_scene/includes/control.js"></script><script type="text/javascript" src="../__includes/ColladaLoader.js"></script><script type="text/javascript" src="../__includes/full_scene/includes/dat.gui.min.js"></script><script type="text/javascript" src="../__includes/Utilities.js"></script><script type="text/javascript" src="../__includes/GraphicsTestBase.js"></script><script type="text/javascript" src="../__includes/full_scene/includes/webgl2/InstanceHandler.js"></script><script type="text/javascript" src="../__includes/full_scene/includes/webgl2/PostProcessShaders.js"></script><script type="text/javascript" src="../__includes/full_scene/includes/webgl2/DeferredShaderCompositor.js"></script><script type="text/javascript" src="../__includes/full_scene/includes/PostProcess/Compositor.js"></script><script type="text/javascript" src="../__includes/full_scene/includes/PostProcess/Bloom.js"></script><script type="text/javascript" src="../__includes/full_scene/includes/PostProcess/DepthOfFieldScaleDownPCF.js"></script><script type="text/javascript" src="../__includes/full_scene/includes/OrbitControls.js"></script><script type="text/javascript" src="webgl2.0test.js"></script><script type="text/javascript" src="test.js"></script><body>
+<div id="brand-header">
+    <img src="/images/web30_header.png" alt="Basemark Web 3.0 Total test time: 3-20 min, Mobile: Use charger, Keep screen alive!" style="max-width: 100%; max-height: 60px">
+</div>
+<div class="container" style="margin-left: 0; margin-right: 0">
+    <script id="genericVertexShader" type="x-shader/x-vertex">
+
+			out vec3 vNormal;
+            out float depth_v;
+
+			void main()	{
+				vNormal = normalMatrix * normal;
+
+				vec4 viewPos =  modelViewMatrix * vec4(position, 1.0);
+				vec4 projPos = projectionMatrix * viewPos;
+				depth_v = projPos.z;
+
+
+				gl_Position = projPos;
+
+			}
+		</script>
+
+    <script id="genericFragmentShader" type="x-shader/x-fragment">
+			uniform vec3 diffuseColor;
+			uniform vec3 materialParams;
+			uniform vec2 nearFar;
+
+			in vec3 vNormal;
+			in float depth_v;
+
+
+
+			layout(location = 0) out vec4 diffuse_unit;
+			layout(location = 1) out highp uint pos_unit;
+			layout(location = 2) out highp uint normal_unit;
+			layout(location = 3) out vec4 param_unit;
+
+            uint encode_normal(vec3 n)
+            {
+                float p = sqrt(n.z*8.0+8.0);
+                vec2 ret = vec2(n.xy/p + vec2(0.5));
+                return packHalf2x16(ret);
+            }
+
+			void main()	{
+
+
+                diffuse_unit = vec4(diffuseColor, 1.0);
+                normal_unit = encode_normal(vNormal);//floatBitsToUint(vNormal);
+                pos_unit = floatBitsToUint(depth_v);
+				float d = gl_FragCoord.z / gl_FragCoord.w;
+                param_unit = vec4(materialParams,(d - nearFar.x)/(nearFar.y - nearFar.x));
+			}
+
+		</script>
+
+
+
+    <script id="particleVertexShader" type="x-shader/x-vertex">
+            uniform float size;
+            uniform float scale;
+            uniform float timer;
+
+            out vec4 mvPosition;
+            out vec3 pN;
+            out vec3 up;
+            out float depth_v;
+            uniform sampler2D noise;
+
+            void main()
+            {
+                vec4 anim_pos = vec4( position.x, position.y - timer*0.5, position.z, 1.0 );
+
+                for (float a = 0.0; a < size;a+= 1.0)
+                {
+                    anim_pos.y += 0.1;
+                }
+
+                if (anim_pos.y < 0.0) anim_pos.y += 20.0;
+                if (anim_pos.y < 0.0) anim_pos.y += 20.0;
+                if (anim_pos.y < 0.0) anim_pos.y += 20.0;
+                //pN = vec3(position.x/5.0,(anim_pos.y/10.0) - 1.0,position.z/5.0);
+                vec2 UV = vec2(position.x/5.0+0.5, position.z/5.0+0.5)*(timer/2.0+60.0)/60.0;
+
+                vec3 noise_p = texture( noise, UV).xyz;
+
+                pN = noise_p*2.0 - vec3(1.0);
+
+                mvPosition = modelViewMatrix * anim_pos;
+
+                up = normalMatrix * vec3(0.0,0.0,1.0);
+
+                vec4 projPos = projectionMatrix * mvPosition;
+
+                depth_v = projPos.z;
+
+                gl_PointSize = (noise_p.z + 0.3)*size * ( scale / length( mvPosition.xyz ) );
+                gl_Position = projPos;
+            }
+		</script>
+
+
+    <script id="particleFragmentShader" type="x-shader/x-fragment">
+            uniform vec3 drop_color;
+            uniform float opacity;
+
+            in vec4 mvPosition;
+            in vec3 pN;
+            in vec3 up;
+            in float depth_v;
+
+            uniform vec4 offsetRepeat;
+            uniform sampler2D map;
+            uniform float contrast;
+            uniform float strength;
+
+
+            layout(location = 0) out vec4 FragCoord;
+
+            void main() {
+                vec4 frontColor = vec4(drop_color,1.0);
+                frontColor.a *= texture( map, vec2( gl_PointCoord.x, 1.0 - gl_PointCoord.y ) * offsetRepeat.zw + offsetRepeat.xy ).a;
+
+                vec4 upColor = frontColor;
+                vec2 aux = vec2(abs(0.5 - gl_PointCoord.x), abs(gl_PointCoord.y - 0.5));
+                upColor.a = max(0.0,(1.0 - aux.x*aux.x - aux.y*aux.y)*10000.0 - 9999.0);
+
+
+                vec3 eye = normalize(-mvPosition.xyz);
+                vec3 N = normalize(pN);
+                float spec = pow(clamp(dot(N, normalize(eye + vec3(-0.6,0.8,0.0) ) ),0.0,1.0), 128.0*contrast);//pow(max(0.0,dot(vec3(0.0,1.0,0.0), normalize(eye + vec3(0.6,0.8,0.0) ) )), 64.0);
+
+                vec4 final;
+
+                vec3 nup = normalize(up);
+
+                final = mix(frontColor, upColor, nup.y*nup.y );
+                final *= (1.0 + spec*5.0*strength);
+
+               FragCoord = final;
+            }
+		</script>
+
+
+    <script id="metallicVertexShader" type="x-shader/x-vertex">
+
+            in vec4 tangent;
+
+			out mat3 tbn;
+			out vec2 vTexel;
+			out vec2 lTexel;
+			out vec4 worldPos;
+			out vec4 viewPos;
+            out vec4 projPos;
+
+			void main()	{
+                vec3 vNormal = normalMatrix * normal;
+				vec3 vTangent = normalMatrix * tangent.xyz;
+                vec3 binormal = cross(normal,tangent.xyz);
+                vec3 vBinormal = normalMatrix * binormal;
+
+                //tbn = mat3(vTangent,vBinormal,vNormal);
+                tbn = mat3(vTangent,vBinormal,vNormal);
+
+
+				viewPos = modelViewMatrix * vec4(position, 1.0);
+				worldPos = modelMatrix * vec4(position, 1.0);
+                vTexel = uv;
+                lTexel = uv2;
+
+                projPos = projectionMatrix * viewPos;
+
+				gl_Position = projPos;
+
+			}
+		</script>
+
+    <script id="metallicPixelShader" type="x-shader/x-fragment">
+
+            uniform sampler2D diffuse;
+            uniform sampler2D material_map;
+            uniform sampler2D light_map;
+            uniform sampler2D environment_map;
+            uniform sampler2D environment_rough_map;
+            uniform sampler2D normal_map;
+
+            uniform float mat_base_metal;
+            uniform float mat_overall_metallness;
+            uniform float mat_metalmap_contr;
+            uniform float mat_base_gloss;
+            uniform float mat_gloss_contr;
+            uniform float mat_glossiness;
+            uniform vec3  specular_albedo;
+
+            uniform float light_intensity;
+            uniform float light_ambient;
+            uniform vec3 light_color;
+            uniform float moon_light_sharpness;
+            uniform float moon_light_spread;
+
+            uniform float pl_intensity[3];
+            uniform float pl_ambient[3];
+            uniform float pl_inner[3];
+            uniform float pl_outer[3];
+            uniform vec3  pl_color[3];
+            uniform vec3 pl_pos[3];
+            uniform float shadow_strength;
+			uniform vec3 moon_light_dir;
+			uniform vec3 moon_light_pos;
+            uniform vec2 nearFar;
+
+			in mat3 tbn;
+			in vec2 vTexel;
+			in vec2 lTexel;
+			in vec4 worldPos;
+			in vec4 viewPos;
+            in vec4 projPos;
+
+			layout(location = 0) out vec4 diffuse_unit;
+			layout(location = 1) out highp uint pos_unit;
+			layout(location = 2) out highp uint normal_unit;
+			layout(location = 3) out vec4 param_unit;
+
+            uint encode_normal(vec3 n)
+            {
+                float p = sqrt(n.z*8.0+8.0);
+                vec2 ret = vec2(n.xy/p + vec2(0.5));
+                return packHalf2x16(ret);
+            }
+
+            vec4 reflectionMap(vec3 eye, vec3 N, float glossiness);
+
+            uint pack4x8to32(in vec4 v)
+            {
+                return (uint(clamp(v.a,0.0,1.0)*255.0) << 24) + (uint(clamp(v.z,0.0,1.0)*255.0) << 16) + (uint(clamp(v.y,0.0,1.0)*255.0) << 8) + uint(clamp(v.x,0.0,1.0)*255.0);
+            }
+
+			void main()	{
+                vec3 eye = normalize(cameraPosition - worldPos.xyz);
+                vec3 normal = 2.0*texture(normal_map,vTexel).xyz - vec3(1.0);
+                vec3 wnormal = normalize(tbn * normal);
+                normal = wnormal;
+                wnormal = (vec4(wnormal,0.0) * viewMatrix).xyz;
+                vec4 albedo_pixel = texture( diffuse, vTexel );
+                float metallness = (texture( material_map, vTexel ).r*mat_metalmap_contr + mat_base_metal)*mat_overall_metallness;
+                float gloss = min(1.0,(mat_base_gloss + (1.0 - texture( material_map, vTexel ).g)*mat_gloss_contr)*mat_glossiness);
+                vec4 metal_pixel = reflectionMap(eye,wnormal,gloss);
+                vec4 color;
+                float shadow_contr = max(0.0,texture( light_map, lTexel ).r*shadow_strength + 1.0 - shadow_strength);
+
+
+            #ifdef MULTI_PASS_REFLECTION
+                vec4 specular_color = vec4(specular_albedo,1.0);
+                color = mix(albedo_pixel, metal_pixel*specular_color, min(1.0,metallness)*metal_pixel.a );
+            #else
+                vec4 specular_color = vec4(specular_albedo,1.0) * albedo_pixel;
+                color = mix(specular_color, metal_pixel*specular_color, min(1.0,metallness));
+            #endif
+
+                diffuse_unit = color;
+                normal_unit = encode_normal(normal);//floatBitsToUint(normal);
+                pos_unit = floatBitsToUint(projPos.z);
+                float d = gl_FragCoord.z / gl_FragCoord.w;
+                param_unit = vec4(shadow_contr, gloss, metallness,(d - nearFar.x)/(nearFar.y - nearFar.x) );
+			}
+
+            vec4 reflectionMap(vec3 eye, vec3 N, float glossiness)
+            {
+            #ifdef MULTI_PASS_REFLECTION
+                vec2 pref = projPos.xy;
+                pref = vec2(1.0) + pref*vec2(1.0 / projPos.w);
+                pref *= vec2(0.5);
+                pref += (N.xz)*0.065;
+
+                vec4 pure_refl = texture(environment_map, pref);
+                return pure_refl;
+            #else
+                vec3 r_eye = reflect(eye,N);
+                r_eye = normalize(r_eye);
+
+                vec2 pref;
+                pref.x = r_eye.x / sqrt( r_eye.x*r_eye.x + r_eye.y*r_eye.y + (r_eye.z)*(r_eye.z) );
+                pref.y = r_eye.y / sqrt( r_eye.x*r_eye.x + r_eye.y*r_eye.y + (r_eye.z)*(r_eye.z) );
+                pref.x = 0.5 + pref.x /2.0;
+                pref.y = 0.5 + pref.y /2.0;
+
+                vec4 pure_refl = texture(environment_map, pref);
+
+                if (glossiness >= 1.0) return pure_refl;
+
+                vec4 rough_refl = texture(environment_rough_map, pref);
+
+                if (glossiness <= 0.0) return rough_refl;
+
+                return mix(rough_refl, pure_refl,glossiness);
+            #endif
+            }
+		</script>
+
+
+
+
+    <script id="instanceBasicVertexShader" type="x-shader/x-vertex">
+			in vec3 instancePosition;
+			in vec4 instanceOrientation;
+
+			out vec3 vNormal;
+			out vec2 vTexel;
+
+            out float depth_v;
+
+			vec3 multiplyVectorWithQuaternion(vec3 v, vec4 q) {
+				// q * v
+
+				float x =  q.w * v.x + q.y * v.z - q.z * v.y;
+				float y =  q.w * v.y + q.z * v.x - q.x * v.z;
+				float z =  q.w * v.z + q.x * v.y - q.y * v.x;
+				float w = - q.x * v.x - q.y * v.y - q.z * v.z;
+
+				// v' * inv(q)
+				return vec3( x * q.w + w * - q.x + y * - q.z - z * - q.y,
+				y * q.w + w * - q.y + z * - q.x - x * - q.z,
+				z * q.w + w * - q.z + x * - q.y - y * - q.x);
+
+			}
+
+
+			void main()	{
+
+				vNormal = normalMatrix * multiplyVectorWithQuaternion(normal, instanceOrientation);
+
+
+				vec4 worldPos = modelMatrix * vec4(multiplyVectorWithQuaternion(position, instanceOrientation), 1.0);
+				worldPos.xyz += instancePosition;
+				vec4 viewPos = viewMatrix * worldPos;
+
+                vTexel = uv;
+                vec4 projPos = projectionMatrix * viewPos;
+                depth_v = projPos.z;
+				gl_Position = projPos;
+
+			}
+		</script>
+
+    <script id="instanceBasicPixelShader" type="x-shader/x-fragment">
+
+            uniform vec3 color;
+			uniform vec3 material_params;
+			uniform vec2 nearFar;
+			in vec3 vNormal;
+			in float depth_v;
+
+			layout(location = 0) out vec4 diffuse_unit;
+			layout(location = 1) out highp uint pos_unit;
+			layout(location = 2) out highp uint normal_unit;
+			layout(location = 3) out vec4 param_unit;
+
+            uint encode_normal(vec3 n)
+            {
+                float p = sqrt(n.z*8.0+8.0);
+                vec2 ret = vec2(n.xy/p + vec2(0.5));
+                return packHalf2x16(ret);
+            }
+
+			void main()	{
+
+
+                diffuse_unit = vec4(color,1.0);
+                normal_unit = encode_normal(vNormal);//floatBitsToUint(vNormal);
+                pos_unit = floatBitsToUint(depth_v);
+				float d = gl_FragCoord.z / gl_FragCoord.w;
+                param_unit = vec4(material_params, (d - nearFar.x)/(nearFar.y - nearFar.x));
+
+			}
+
+		</script>
+
+
+    <script id="instanceEmissiveVertexShader" type="x-shader/x-vertex">
+
+			in vec3 instancePosition;
+			in vec4 instanceOrientation;
+
+			out vec3 vNormal;
+			out vec3 viewPos;
+			out float depth_v;
+
+			vec3 multiplyVectorWithQuaternion(vec3 v, vec4 q) {
+				// q * v
+
+				float x =  q.w * v.x + q.y * v.z - q.z * v.y;
+				float y =  q.w * v.y + q.z * v.x - q.x * v.z;
+				float z =  q.w * v.z + q.x * v.y - q.y * v.x;
+				float w = - q.x * v.x - q.y * v.y - q.z * v.z;
+
+				// v' * inv(q)
+				return vec3( x * q.w + w * - q.x + y * - q.z - z * - q.y,
+				y * q.w + w * - q.y + z * - q.x - x * - q.z,
+				z * q.w + w * - q.z + x * - q.y - y * - q.x);
+
+			}
+
+
+			void main()	{
+				vNormal = normalMatrix * multiplyVectorWithQuaternion(normal, instanceOrientation);
+				vec4 wPos = modelMatrix * vec4(multiplyVectorWithQuaternion(position, instanceOrientation), 1.0);
+				wPos.xyz += instancePosition;
+				vec4 vPos = viewMatrix * wPos;
+
+				vec4 projPos = projectionMatrix * vPos;
+                depth_v = projPos.z;
+				viewPos = vPos.xyz;
+				gl_Position = projPos;
+
+			}
+		</script>
+
+    <script id="instanceEmissivePixelShader" type="x-shader/x-fragment">
+
+            uniform vec3 emission;
+			in vec3 vNormal;
+			in vec3 viewPos;
+			in float depth_v;
+
+            layout(location = 0) out vec4 FragCoord;
+
+			void main()	{
+
+				vec3 N = normalize(vNormal);
+                vec3 V = normalize(-viewPos);
+
+                float s = min(1.0,pow(max(0.0,dot(N,V)),8.0)*4.0);
+
+                FragCoord = vec4(emission,s);
+
+			}
+
+		</script>
+
+
+    <script id="robotVertexShader" type="x-shader/x-vertex">
+
+            in vec4 tangent;
+
+
+			out mat3 tbn;
+			out vec2 vTexel;
+			out vec2 lTexel;
+			out vec4 worldPos;
+			out float depth_v;
+
+
+			void main()	{
+                vec3 vNormal = normalMatrix * normal;
+				vec3 vTangent = normalMatrix * tangent.xyz;
+                vec3 binormal = cross(normal,tangent.xyz);
+                vec3 vBinormal = normalMatrix * binormal;
+
+                //tbn = mat3(vTangent,vBinormal,vNormal);
+                tbn = mat3(vTangent,vBinormal,vNormal);
+
+
+				vec4 viewPos = modelViewMatrix * vec4(position, 1.0);
+				worldPos = modelMatrix * vec4(position, 1.0);
+                vTexel = uv;
+                lTexel = uv2;
+                vec4 projPos = projectionMatrix * viewPos;
+
+                depth_v = projPos.z;
+
+				gl_Position = projPos;
+
+			}
+		</script>
+
+    <script id="robotPixelShader" type="x-shader/x-fragment">
+            uniform sampler2D diffuse;
+            uniform sampler2D material_map;
+            uniform sampler2D environment_map;
+            uniform sampler2D environment_rough_map;
+            uniform sampler2D normal_map;
+            uniform sampler2D noise_map;
+            uniform sampler2D light_map;
+
+            uniform float mat_base_metal;
+            uniform float mat_overall_metallness;
+            uniform float mat_metalmap_contr;
+            uniform float mat_base_gloss;
+            uniform float mat_gloss_contr;
+            uniform float mat_glossiness;
+            uniform vec3  specular_albedo;
+
+            uniform float light_intensity;
+            uniform float light_ambient;
+            uniform vec3 light_color;
+            uniform float moon_light_sharpness;
+            uniform float moon_light_spread;
+            uniform float timer;
+            uniform float shadow_strength;
+            uniform float drop_size;
+
+            uniform float pl_intensity[3];
+            uniform float pl_ambient[3];
+            uniform float pl_inner[3];
+            uniform float pl_outer[3];
+            uniform vec3  pl_color[3];
+            uniform vec3 pl_pos[3];
+			uniform vec3 moon_light_dir;
+			uniform vec3 moon_light_pos;
+            uniform vec2 nearFar;
+
+			in mat3 tbn;
+			in vec2 vTexel;
+			in vec2 lTexel;
+			in vec4 worldPos;
+			in float depth_v;
+
+
+			layout(location = 0) out vec4 diffuse_unit;
+			layout(location = 1) out highp uint pos_unit;
+			layout(location = 2) out highp uint normal_unit;
+			layout(location = 3) out vec4 param_unit;
+
+            uint encode_normal(vec3 n)
+            {
+                float p = sqrt(n.z*8.0+8.0);
+                vec2 ret = vec2(n.xy/p + vec2(0.5));
+                return packHalf2x16(ret);
+            }
+
+            vec4 reflectionMap(vec3 eye, vec3 N, float glossiness);
+
+			void main()	{
+                vec3 eye = normalize(cameraPosition - worldPos.xyz);
+                vec3 normal = 2.0*texture(normal_map,vTexel).xyz - vec3(1.0);
+                vec3 wnormal = normalize(tbn * normal);
+                normal = wnormal;
+                wnormal = (vec4(wnormal,0.0) * viewMatrix).xyz;
+                vec4 albedo_pixel = texture( diffuse, vTexel );
+                float metallness = (texture( material_map, vTexel ).r*mat_metalmap_contr + mat_base_metal)*mat_overall_metallness;
+                float gloss = min(1.0,(mat_base_gloss + (1.0 - texture( material_map, vTexel ).g)*mat_gloss_contr)*mat_glossiness);
+                vec4 metal_pixel = reflectionMap(eye,wnormal,gloss);
+                vec4 color;
+                float shadow_contr = max(0.0,texture( light_map, lTexel ).r*shadow_strength + 1.0 - shadow_strength);
+
+
+
+                vec2 pref;
+                pref.x = (worldPos.x) / sqrt( (worldPos.x)*(worldPos.x) + (worldPos.y)*(worldPos.y) + (worldPos.z)*(worldPos.z) );
+                pref.y = (worldPos.y) / sqrt( (worldPos.x)*(worldPos.x) + (worldPos.y)*(worldPos.y)  + (worldPos.z)*(worldPos.z) );
+                pref.x = 0.5 + pref.x /2.0;
+                pref.y = 0.5 + pref.y /2.0;
+
+                vec2 drop_t = vec2( pref.x,pref.y + worldPos.z*0.1)*(2.0 - drop_size) + vec2(0.0,timer*0.003);
+                //vec2 drop_t = vec2( -abs(worldPos.x) +abs(worldPos.z),worldPos.y + (worldPos.x)*2.0)*0.1 + vec2(0.0,timer*0.003);
+                vec3 noise = texture( noise_map, drop_t ).rgb;
+                vec3 noise_n = normalize(noise*2.0 - vec3(1.0));
+                vec3 noise_xp = normalize(texture( noise_map, drop_t + vec2(0.00199,0.0) ).rgb*2.0 - vec3(1.0));
+                vec3 noise_xn = normalize(texture( noise_map, drop_t + vec2(-0.00199,0.0) ).rgb*2.0 - vec3(1.0));
+                vec3 noise_yp = normalize(texture( noise_map, drop_t + vec2(0.0,-0.00199) ).rgb*2.0 - vec3(1.0));
+                vec3 noise_yn = normalize(texture( noise_map, drop_t + vec2(0.0,0.00199) ).rgb*2.0 - vec3(1.0));
+
+                float drop_s = pow(max(0.0,dot(normalize(worldPos.xyz),noise_n)),32.0);
+                float drop_sxp = pow(max(0.0,dot(normalize(worldPos.xyz),noise_xp)),32.0);
+                float drop_sxn = pow(max(0.0,dot(normalize(worldPos.xyz),noise_xn)),32.0);
+                float drop_syp = pow(max(0.0,dot(normalize(worldPos.xyz),noise_yp)),32.0);
+                float drop_syn = pow(max(0.0,dot(normalize(worldPos.xyz),noise_yn)),32.0);
+
+
+                vec3 drop_n = normalize(tbn * (vec3(drop_sxn - drop_sxp, drop_syp - drop_syn,0.001 + drop_s*0.5)) );
+
+                vec2 uv_disp = drop_n.xy*0.1/(1.0 + drop_n.z);
+                vec4 drop = texture( diffuse, vTexel + uv_disp );//vec4(drop_n,1.0)*z;
+                albedo_pixel = mix(albedo_pixel, drop, drop_s);
+                metallness = min(1.0,metallness + drop_s*0.2);
+                gloss = min(1.0,gloss + drop_s*0.6);
+                normal = normalize(normal*(1.0 - drop_s) + drop_n*drop_s);
+
+
+
+                vec4 specular_color = vec4(specular_albedo,1.0) * albedo_pixel;
+
+                color = mix(specular_color, metal_pixel*specular_color, min(1.0,metallness));
+
+
+                diffuse_unit = color;
+                normal_unit = encode_normal(normal);//floatBitsToUint(normal);
+                pos_unit = floatBitsToUint(depth_v);
+                float d = gl_FragCoord.z / gl_FragCoord.w;
+                param_unit = vec4(shadow_contr, gloss, metallness,(d - nearFar.x)/(nearFar.y - nearFar.x) );
+			}
+
+            vec4 reflectionMap(vec3 eye, vec3 N, float glossiness)
+            {
+                vec3 r_eye = reflect(eye,N);
+                r_eye = normalize(r_eye);
+
+                vec2 pref;
+                pref.x = r_eye.x / sqrt( r_eye.x*r_eye.x + r_eye.y*r_eye.y + (r_eye.z)*(r_eye.z) );
+                pref.y = r_eye.y / sqrt( r_eye.x*r_eye.x + r_eye.y*r_eye.y + (r_eye.z)*(r_eye.z) );
+                pref.x = 0.5 + pref.x /2.0;
+                pref.y = 0.5 + pref.y /2.0;
+
+                vec4 pure_refl = texture(environment_map, pref);
+
+                if (glossiness >= 1.0) return pure_refl;
+
+                vec4 rough_refl = texture(environment_rough_map, pref);
+
+                if (glossiness <= 0.0) return rough_refl;
+
+                return mix(rough_refl, pure_refl,glossiness);
+            }
+		</script>
+
+
+
+    <script id="transpDecalVertexShader" type="x-shader/x-vertex">
+			out vec2 vTexel;
+			out vec2 lTexel;
+			out vec4 worldPos;
+			out float depth_v;
+			out vec3 vNormal;
+
+			void main()	{
+                vNormal = normalMatrix * normal;
+
+				vec4 viewPos = modelViewMatrix * vec4(position, 1.0);
+				worldPos = modelMatrix * vec4(position, 1.0);
+                vTexel = uv;
+                lTexel = uv2;
+
+                vec4 proj_pos = projectionMatrix * viewPos;
+
+                depth_v = proj_pos.z;
+
+				gl_Position = proj_pos;
+
+			}
+		</script>
+
+    <script id="transpDecalPixelShader" type="x-shader/x-fragment">
+            uniform sampler2D diffuse;
+            uniform sampler2D light_map;
+
+            uniform float mat_glossiness;
+            uniform float  mat_specularity;
+
+            uniform float light_intensity;
+            uniform float light_ambient;
+            uniform vec3 light_color;
+            uniform float moon_light_sharpness;
+            uniform float moon_light_spread;
+			uniform vec3 moon_light_dir;
+			uniform vec3 moon_light_pos;
+
+            uniform float pl_intensity[3];
+            uniform float pl_ambient[3];
+            uniform float pl_inner[3];
+            uniform float pl_outer[3];
+            uniform vec3  pl_color[3];
+            uniform float shadow_strength;
+            uniform vec2 nearFar;
+
+			in vec2 vTexel;
+			in vec2 lTexel;
+			in vec4 worldPos;
+			in float depth_v;
+			in vec3 vNormal;
+
+			layout(location = 0) out vec4 diffuse_unit;
+			layout(location = 1) out highp uint pos_unit;
+			layout(location = 2) out highp uint normal_unit;
+			layout(location = 3) out vec4 param_unit;
+
+            uint encode_normal(vec3 n)
+            {
+                float p = sqrt(n.z*8.0+8.0);
+                vec2 ret = vec2(n.xy/p + vec2(0.5));
+                return packHalf2x16(ret);
+            }
+
+			void main()	{
+                vec3 eye = normalize(cameraPosition - worldPos.xyz);
+                vec3 normal = normalize(vNormal);
+                vec4 albedo_pixel = texture( diffuse, vTexel );
+                float gloss = mat_glossiness;
+                vec4 color;
+                float shadow_contr = max(0.0,texture( light_map, lTexel ).r*shadow_strength + 1.0 - shadow_strength);
+
+                diffuse_unit = albedo_pixel;
+                normal_unit = encode_normal(normal);//floatBitsToUint(normal);
+                pos_unit = floatBitsToUint(depth_v);
+                //float d = gl_FragCoord.z / gl_FragCoord.w;
+                //param_unit = vec4(shadow_contr, gloss, 0.0,(d - nearFar.x)/(nearFar.y - nearFar.x) );
+                param_unit = vec4(shadow_contr, gloss,0.0,0.0); // for now we keep the Normalized depth (alpha) as zero due to blending issues
+			}
+
+
+		</script>
+
+
+
+    <script id="emissiveVertexShader" type="x-shader/x-vertex">
+
+			out vec3 vNormal;
+			out vec3 viewPos;
+			out float depth_v;
+
+			void main()	{
+                vNormal = normalMatrix * normal;
+				vec4 vPos = modelViewMatrix * vec4(position, 1.0);
+                vec4 projPos = projectionMatrix * vPos;
+				viewPos = vPos.xyz;
+                depth_v = projPos.z;
+				gl_Position = projPos;
+
+			}
+		</script>
+
+    <script id="emissivePixelShader" type="x-shader/x-fragment">
+
+            uniform vec3 emission;
+			in vec3 vNormal;
+			in vec3 viewPos;
+			in float depth_v;
+
+			layout(location = 0) out vec4 diffuse_unit;
+			layout(location = 1) out highp uint pos_unit;
+			layout(location = 2) out highp uint normal_unit;
+			layout(location = 3) out vec4 param_unit;
+
+			void main()	{
+                vec3 N = normalize(vNormal);
+                vec3 V = normalize(-viewPos);
+
+                float s = min(1.0,pow(max(0.0,dot(N,V)),8.0)*4.0);
+
+                diffuse_unit = vec4(emission*s*3.0,1.0);
+                normal_unit = 0u;
+                pos_unit = floatBitsToUint(depth_v);
+                param_unit = vec4(0.0);
+			}
+
+        </script>
+    <h1>WebGL 2.0 Test (test 5/20)</h1>
+    <div id="webgl-20-test-content-area">
+    </div>
+</div>
+<script type="text/javascript">
+  var debug = false;
+
+  var testContainerName = 'webgl-20-test-content-area';
+
+  BasemarkWebEngine.runTest();
+</script>
+</body>
+
+</html>
