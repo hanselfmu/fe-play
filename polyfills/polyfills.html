@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Polyfills</title>
+  <script src="promise.js"></script>
+  <!--<script>Promise = null;</script>-->
+  <!--<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.js"></script>-->
+  <!--<script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.js"></script>-->
+</head>
+<body>
+<script>
+  const p = new Promise(res => {
+    console.log('what\'s the answer to The Ultimate Question of Life, the Universe, and Everything?');
+    res(42);
+  });
+
+  p.then(l => {
+    console.log('The answer is', l);
+    return 'Who said it?'
+  }).then(s => {
+    console.log(s);
+    throw new Error('I don\'t know who said it');
+    // return 3;
+  }).then(r => {
+    console.log('should never reach this', r);
+  }).catch(e => {
+    console.log('error', e);
+  });
+
+  p.then(l => {
+    console.log('this is another sequence with the same question!');
+    return l;
+  }).then(s => {
+    console.log('As I said, the answer is', s);
+  });
+
+  console.log('contemplating...');
+</script>
+</body>
+</html>

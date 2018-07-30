@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Immutable JS Tests</title>
+</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/immutable/3.8.2/immutable.js"></script>
+<body>
+<script>
+  "use strict";
+
+  /*
+  Native JavaScript provides ability to check the reference equality of two objects.
+  What does ImmutableJS bring to the table?
+  1. Mutations to an existing Immutable Object will create new Immutable Objects, not modifying the existing one.
+  2. Value equality checking between two Immutable Objects.
+  3. Immutable Objects can be cloned by simply creating a new reference to it,
+    because any changes later on will result in new objects, not modifying existing ones.
+
+  For React and Redux, global states can be represented using Immutable Objects (Redux actually recommends creating one single Immutable Object to hold the tree).
+  When state is changed from reducer, No.1 feature will take effect, and
+  new objects will be created ONLY when changed are made to these objects' values.
+  Therefore, for React components, they can re-implement "shouldComponentUpdate" hook, or use PureComponent, to
+  check for equality instead of a deep compare, to know that props have been updated, and they should re-render.
+   */
+  const testCount = 1e6;
+  
+</script>
+</body>
+</html>

@@ -5,21 +5,10 @@
 
 "use strict";
 
-function a() { return b(); }
-function b() { return c(); }
-function c() {
-    console.trace();
+function fib(n) {
+  if(n === 0) return 0;
+  if(n === 1) return 1;
+  return f(n - 1) + f(n -2);
 }
 
-a();
-
-function direct() {
-    return (function f(n){
-        if (n <= 0) {
-            return  "foo";
-        }
-        return f(n - 1);
-    }(100000)) === "foo";
-}
-
-console.log(direct());
+console.log(fib(10));

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas Draw Calls</title>
+</head>
+<body>
+<canvas id="c" width="700" height="700"></canvas>
+<script>
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.src = '../animation/demo.png';
+
+    function drawText(pos) {
+      ctx.clearRect(0, 0, 700, 700);
+      const gradient = ctx.createLinearGradient(0, pos, 0, pos + 40);
+      gradient.addColorStop(0, '#fdf01f');
+      gradient.addColorStop(0.44, '#ff9d02');
+      gradient.addColorStop(0.78, '#fdf01f');
+      gradient.addColorStop(1, '#fff36d');
+      ctx.fillStyle = gradient;
+      ctx.font = 'italic 40px sans-serif';
+      ctx.textBaseline = 'top';
+      ctx.fillText('this is a very long text', 100, pos);
+    }
+
+    function testTransform1(load) {
+      let before = performance.now();
+
+      ctx.clearRect(0, 0, 700, 700);
+      for (let i = 0; i < load * 100; i++) {
+        const rgb = i & 0xFF;
+        ctx.translate(300, 400);
+        ctx.rotate(0.5);
+        ctx.fillRect(0, 0, 100, 100);
+        ctx.rotate(-0.5);
+        ctx.translate(-300, -400);
+      }
+
+      let timeSpent = performance.now() - before;
+      console.log(`1: load ${load} took ${timeSpent} ms`);
+    }
+
+    function testTransform2(load) {
+      let before = performance.now();
+
+      ctx.clearRect(0, 0, 700, 700);
+      for (let i = 0; i < load * 100; i++) {
+        const rgb = i & 0xFF;
+        ctx.save();
+        ctx.translate(300, 400);
+        ctx.rotate(0.5);
+        ctx.fillRect(0, 0, 100, 100);
+        ctx.restore();
+      }
+
+      let timeSpent = performance.now() - before;
+      console.log(`2: load ${load} took ${timeSpent} ms`);
+    }
+
+    function testTransform3(load) {
+      let before = performance.now();
+
+      ctx.clearRect(0, 0, 700, 700);
+      for (let i = 0; i < load * 2000; i++) {
+        const rgb = i & 0xFF;
+        ctx.translate(300, 400);
+        ctx.rotate(0.5);
+        ctx.fillRect(0, 0, 100, 100);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+      }
+
+      let timeSpent = performance.now() - before;
+      console.log(`3: load ${load} took ${timeSpent} ms`);
+    }
+
+    // test splitting
+    function testSplit1(load) {
+      let before = performance.now();
+      const imgWidth = img.width;
+      const imgHeight = img.height;
+      ctx.clearRect(0, 0, 700, 700);
+      for (let i = 0; i < load * 100; i++) {
+        ctx.beginPath();
+        ctx.lineTo(imgWidth / 2, 0);
+        ctx.lineTo(imgWidth / 2, imgHeight);
+        ctx.lineTo(0, imgHeight);
+        ctx.lineTo(0, 0);
+        ctx.closePath();
+        ctx.clip();
+        ctx.drawImage(img, 0, 0);
+      }
+
+      let timeSpent = performance.now() - before;
+      console.log(`split 1: load ${load} took ${timeSpent} ms`);
+    }
+
+    function testSplit2(load) {
+      let before = performance.now();
+      const imgWidth = img.width;
+      const imgHeight = img.height;
+      ctx.clearRect(0, 0, 700, 700);
+      for (let i = 0; i < load * 100; i++) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+        ctx.fillRect(0, 0, imgWidth / 2, imgHeight);
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.drawImage(img, 0, 0);
+        ctx.globalCompositeOperation = 'source-over';
+
+      }
+
+      let timeSpent = performance.now() - before;
+      console.log(`split 2: load ${load} took ${timeSpent} ms`);
+    }
+
+    let frame = 0;
+    let load = 0;
+    let maxLoad = 6;
+    let prevFrame = performance.now();
+
+    function test() {
+      const curFrame = performance.now();
+      const frameTime = curFrame - prevFrame;
+      prevFrame = curFrame;
+
+      // console.warn(`frame ${frame} took ${frameTime} ms`);
+      // runLoad3(5);
+      testSplit1(5);
+      testSplit2(5);
+      //
+      // runLoad3(load);
+      // runLoad2(load);
+      // runLoad1(load);
+
+      load++;
+      frame++;
+      if (load < maxLoad) {
+        requestAnimationFrame(test);
+      }
+    }
+
+    img.onload = function() {
+      test();
+
+    }
+</script>
+</body>
+</html>

@@ -19,6 +19,16 @@
     <!-- events -->
 </div>
 
+<div id="load-test-container">Load Test container</div>
+<script>
+    const container = document.getElementById('load-test-container');
+    const div = document.createElement('div');
+    div.innerHTML = 'hello world';
+    div.addEventListener('load', function() {
+      console.log('loaded!!!');
+    });
+    container.appendChild(div);
+</script>
 
 <!--<script src="nativeTests.js"></script>-->
 <!--<script src="oop.js"></script>-->

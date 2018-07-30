@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smooth Animation</title>
+    <style>
+        #block {
+            width: 100px;
+            height: 100px;
+            background-color: lightblue;
+            display: inline-block;
+            transform: translateZ(0);
+        }
+
+        #block.animated {
+            /*animation: move 4s infinite;*/
+        }
+
+        @keyframes move {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            25% {
+                transform: translate(200px, 0);
+            }
+
+            50% {
+                transform: translate(200px, 200px);
+            }
+
+            75% {
+                transform: translate(0, 200px);
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="block"></div>
+<script src="smooth.js"></script>
+</body>
+</html>

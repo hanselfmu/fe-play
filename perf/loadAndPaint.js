@@ -11,44 +11,45 @@ is within browser. I'll have to verify that.
 
 console.log('script loaded');
 
-// this function, is executed here, will delay domcontentloaded event
+// this function, if executed here, will delay domcontentloaded event
 function heavyFn() {
-    var str = '';
+  var str = '';
 
-    for (var i = 0; i < 20000000; i++) {
-        str += i;
-    }
+  for (var i = 0; i < 20000000; i++) {
+    str += i;
+  }
 
-    return str;
+  console.log('str is done');
+  return str;
 }
-
-console.log('str is done');
 
 var frameCount = 0;
+
+let prevFrame;
+
 function checkFrame() {
-    console.log('checking frame ' + frameCount);
-    frameCount++;
+  const curFrame = performance.now();
+  console.log(`frame: ${frameCount}: took ${curFrame - prevFrame} ms`);
+  prevFrame = curFrame;
+  frameCount++;
 
-    if (frameCount < 100) {
-        window.requestAnimationFrame(checkFrame);
-    }
-
-    if (frameCount % 10 === 0) {
-        heavyFn();
-    }
+  if (frameCount < 100) {
+    window.requestAnimationFrame(checkFrame);
+  }
 }
 
-document.getElementById('big-img').addEventListener('load', function() {
-   console.log('img loaded, which means browser has complete img data, but yet to draw it');
-   console.log('this is when "load" event is fired');
-   console.warn('at this point the image might not be completely drawn by the rendering engine');
+document.getElementById('big-img').addEventListener('load', function () {
+  console.log('img loaded, which means browser has complete img data, but yet to draw it');
+  console.log('this is when "load" event is fired');
+  console.log('at this point the image might not be completely drawn by the rendering engine');
 
-   window.requestAnimationFrame(checkFrame);
+  prevFrame = performance.now();
+  checkFrame();
 
-   console.log(heavyFn().slice(0, 100));
-   console.log('the heavy fn above will delay img drawing');
+  console.log('start heavy fn in the onload callback');
+  heavyFn().slice(0, 100);
+  console.log('the heavy fn is done');
 });
-
 
 
 console.log('this is when "domcontentloaded" event is fired');

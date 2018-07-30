@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Canvas Proxy</title>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+  const canvas = document.getElementById('c');
+  const context = new Proxy(canvas.getContext('2d'), {
+    get(target, key) {
+      const prop = target[key];
+      return typeof prop === 'function' ? prop.bind(target) : prop;
+    },
+    set(target, key, value) {
+      console.log(`setting ${key} to be ${value}`);
+      target[key] = value;
+      return true;
+    }
+  });
+
+  context.fillRect(0, 0, 100, 100);
+  context.a = 'abc';
+  console.log(context.a);
+
+  context.fillStyle = 'rgba(100, 50, 0, 0.5)';
+  context.fillRect(100, 100, 100, 100);
+</script>
+</body>
+</html>

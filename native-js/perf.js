@@ -41,19 +41,19 @@ testArr.forEach((el, i) => {
 
 perf.mark('mark_end_forEach');
 
-perf.mark('mark_start_forIn');
-for (let i in testArr) {
-    testArr[i] = 2;
-}
-
-perf.mark('mark_end_forIn');
-
 perf.mark('mark_start_forLoop');
 for (let i = 0; i < testArr.length; i++) {
     testArr[i] = 3;
 }
 
 perf.mark('mark_end_forLoop');
+
+perf.mark('mark_start_forIn');
+for (let i of testArr) {
+  testArr[i] = 2;
+}
+
+perf.mark('mark_end_forIn');
 
 perf.measure('measure_forEach', 'mark_start_forEach', 'mark_end_forEach');
 perf.measure('measure_forIn', 'mark_start_forIn', 'mark_end_forIn');

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Mem Leak</title>
+</head>
+<body>
+<div id="container"></div>
+<script>
+    function Point(x) {
+      this.x = x;
+    }
+
+    function out() {
+      let p1 = new Point(1);
+      let p2 = new Point(2);
+
+      return function() {
+        return p2;
+      }
+    }
+
+    let r1 = out();
+    r1();
+
+</script>
+</body>
+</html>

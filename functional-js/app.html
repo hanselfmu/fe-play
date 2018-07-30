@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Functional</title>
+</head>
+<body>
+<script>
+  "use strict";
+
+  let frames = 0;
+
+  function fib(n) {
+    if(n === 0) return 0;
+    if(n === 1) return 1;
+
+    frames += 2;
+    console.log('frames: ', frames);
+    return fib(n - 1) + fib(n -2);
+  }
+
+  console.log(fib(42));
+</script>
+</body>
+</html>
