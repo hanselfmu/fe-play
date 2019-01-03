@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <title>Mover Tests</title>
+        <style>
+            .box {
+                margin-bottom: 100px;
+                background-color:burlywood;
+                width: 50px;
+                height: 50px;
+            }
+
+            #left-css {
+                transition: margin-left 10s;
+            }
+            #left-css.move {
+                margin-left: 1000px; 
+            }
+
+            #translate-css {
+                transition: transform 10s;
+            }
+            #translate-css.move {
+                transform: translateX(1000px);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="box" id="left-js"></div>
+        <div class="box" id="left-css"></div>
+        <div class="box" id="translate-js"></div>
+        <div class="box" id="translate-css"></div>
+
+        <script>
+            const leftJS = document.getElementById('left-js');
+            let marginLeft = 0;
+            setInterval(() => {
+                leftJS.style.marginLeft = `${marginLeft}px`;
+                marginLeft++;
+            }, 10);
+
+            setTimeout(() => {
+                document.getElementById('left-css').classList.add('move');
+            }, 10);
+
+            const translateJS = document.getElementById('translate-js');
+            let translateX = 0;
+            setInterval(() => {
+                translateJS.style.transform = `translateX(${translateX}px)`;
+                translateX++;
+            }, 10);
+
+            setTimeout(() => {
+                document.getElementById('translate-css').classList.add('move');
+            }, 10);
+        </script>
+    </body>
+</html>

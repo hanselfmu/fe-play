@@ -1,32 +1,9 @@
 /*
-  const p = new Promise(res => {
-    console.log('what\'s the answer to The Ultimate Question of Life, the Universe, and Everything?');
-    res(42);
-  });
 
-  p.then(l => {
-    console.log('The answer is', l);
-    return 'Who said it?'
-  }).then(s => {
-    console.log(s);
-    throw new Error('I don\'t understand');
-  }).then(() => {
-    console.log('should never reach this');
-  }).catch(e => {
-    console.log('error', e);
-  });
-
-  p.then(l => {
-    console.log('this is another sequence with answer', l);
-    return 'I\'m done now';
-  }).then(s => {
-    console.log(s);
-  });
-
-  console.log('contemplating...');
- */
-
-/* Pure-ES5 Promise Polyfill */
+Please implement a pure-ES5 Promise polyfill.
+Refer to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+for details about how a Promise works.
+*/
 
 Promise = function(executor) {
   if (typeof executor !== 'function') {
@@ -108,3 +85,44 @@ Promise.prototype.then = function(onFulFilled, onRejected) {
 Promise.prototype.catch = function(onRejected) {
   return this.then(undefined, onRejected);
 };
+
+const p = new Promise(res => {
+  console.log('what\'s the answer to The Ultimate Question of Life, the Universe, and Everything?');
+  res(42);
+});
+
+p.then(l => {
+  console.log('The answer is', l);
+  return 'Who said it?'
+}).then(s => {
+  console.log(s);
+  throw new Error('I don\'t know who said it');
+  // return 3;
+}).then(r => {
+  console.log('should never reach this', r);
+}).catch(e => {
+  console.log('error', e);
+});
+
+p.then(l => {
+  console.log('this is another sequence with the same question!');
+  return l;
+}).then(s => {
+  console.log('As I said, the answer is', s);
+});
+
+console.log('contemplating...');
+
+/*
+the sequence should be:
+
+what's the answer to The Ultimate Question of Life, the Universe, and Everything?
+contemplating...
+The answer is 42
+this is another sequence with the same question!
+Who said it?
+As I said, the answer is 42
+error Error: I don't know who said it
+    at onRejected (promise.js:50)
+    at promise.js:61
+ */

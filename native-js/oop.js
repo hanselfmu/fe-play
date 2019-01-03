@@ -8,7 +8,16 @@ function Vehicle() {
 
 Vehicle.prototype.drive = function() {
     console.log('I can drive');
+
+    if (this.service()) {
+
+    } else {
+        
+    }
 };
+
+// car.drive() is public;
+// car.service() is NOT public;
 
 var car = new Vehicle();
 var sportsCar = Object.create(car);
@@ -24,5 +33,4 @@ car.drive = function() {
 
 console.log('...and see how sportsCar, a child of car, drives');
 sportsCar.drive();
-
 

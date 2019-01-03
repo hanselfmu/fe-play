@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <title>Layers</title>
+        <style>
+            .eg {
+                margin: 40px;
+                width: 500px;
+                height: 100px;
+            }
+
+            .transform-3d {
+                transform: translateZ(1px);
+            }
+
+            .animate-opacity {
+                transition: opacity 5s;
+            }
+            .animate-opacity.animated {
+                opacity: 0.1;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="notes">
+            <p>Check chrome://gpu/ first to see if your browser supports hardware-accelerated features.</p>
+            <p>For meanings of different layer border colors, refer to chromium/src/cc/debug/debug_colors.cc for more information.</p>
+            <p>For Accelerated Compositing, refer to https://www.chromium.org/developers/design-documents/gpu-accelerated-compositing-in-chrome</p>
+        </div>
+
+        <div class="eg transform-3d">CSS Transform 3D</div>
+        <div class="eg animate-opacity" id="animate-opacity">CSS Animate Opacity</div>
+        <video class="eg video" width="500" height="100" src="./toystory.mp4" controls>Only accelerated decoding creates a new layer.</video>
+        <canvas class="eg" id="webgl" width="500" height="100">WebGL</canvas>
+
+        <img class="eg" alt="img won't have its own layer">
+
+        <script>
+            // animated opacity
+            setTimeout(() => {
+                document.getElementById('animate-opacity').classList.add('animated');
+            }, 500);
+
+            const canvas = document.getElementById('webgl');
+            const context = canvas.getContext('webgl');
+        </script>
+    </body>
+</html>

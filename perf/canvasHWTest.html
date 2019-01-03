@@ -1,0 +1,42 @@
+<html>
+    <head>
+        <title>Canvas HW Test</title>
+    </head>
+    <body>
+        <canvas id="cvs"></canvas>
+        <img id="i" src="./img/demo.png" />
+        <script>
+            const canvas = document.getElementById('cvs');
+            const ctx = canvas.getContext('2d');
+
+            let w = 300;
+            let h = 300;
+            
+            let imgLoaded = false;
+            const img = document.getElementById('i');
+            img.addEventListener('load', function() {
+                imgLoaded = true;
+            });
+
+            window.addEventListener('resize', function() {
+                w = window.innerWidth;
+                h = window.innerHeight;
+            });
+
+            ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
+            function draw() {
+                ctx.clearRect(0, 0, w, h);
+
+                canvas.width = w;
+                canvas.height = h;
+                if (imgLoaded) {
+                    ctx.drawImage(img, 0, 0, w, h);
+                }
+
+                requestAnimationFrame(draw);
+            }
+
+            requestAnimationFrame(draw);
+        </script>
+    </body>
+</html>
