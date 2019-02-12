@@ -3,24 +3,51 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Perf Explained</title>
 </head>
+
 <body>
-    <div id="container"></div>
+    <div>
+        It is certain that a black box will NEVER get painted, even though it is the default color.
+        None of the purple, green, or gray color will be painted either, because these script blocks
+        are executed too fast for browser to consider inserting a reflow (layout + paint + composition) procedure.
+        The red box will be the first painted box, because browser will spend many seconds executing this block;
+        it will then insert a reflow procedure.
+    </div>
+    <div id="container">Hello World</div>
     <style>
         #container {
             width: 200px;
             height: 200px;
-            background-color: red;
+            background-color: black;
         }
     </style>
     <script>
-        console.log('finished parsing styles');
+        const container = document.getElementById('container');
+        container.style.backgroundColor = 'purple';
+    </script>
+    <script>
+        container.style.backgroundColor = 'green';
+    </script>
+    <script>
+        container.style.backgroundColor = 'gray';
+    </script>
+    <script>
+        console.log(performance.now(), 'executing 1st script block');
+
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('dom content loaded');
+            console.log(performance.now(), 'dom content loaded');
         });
+        window.addEventListener('load', () => {
+            console.log(performance.now(), 'load');
+            console.log(performance.getEntriesByType('paint')[0]);
+        });
+        console.log(performance.now(), 'issued DOM updates in 1st script block');
+        container.style.backgroundColor = 'red';
+        container.innerText = 'updated background from black to red';
+
         let str = '';
-        for (let i = 0; i < 5e7; i++) {
+        for (let i = 0; i < 3e7; i++) {
             str += i;
             if (str.length > 1000) {
                 str = '';
@@ -28,25 +55,35 @@
         }
     </script>
     <script>
+        console.log(performance.now(), 'executing 2nd script block; if first paint is now then the first box color is red');
         setTimeout(() => {
-            const container = document.getElementById('container');
-
-            console.log('issued DOM updates');
-            // DOM update
+            console.log(performance.now(), 'issued DOM updates in setTimeout; if first paint is now then the first box color is yellow');
             container.style.backgroundColor = '#10bdc4';
-            container.innerText = 'finished updating background from red to a weird blue';
+            container.innerText = 'updated background from yellow to a weird blue';
 
-            console.log('start appending str');
             let str = '';
-            for (let i = 0; i < 5e7; i++) {
+            for (let i = 0; i < 3e7; i++) {
                 str += i;
                 if (str.length > 1000) {
                     str = '';
                 }
             }
+        }, 1000);
+    </script>
+    <script>
+        console.log(performance.now(), 'executing 3rd script block');
 
-            console.log('done appending str', str.length);
-        }, 2000);
+        console.log(performance.now(), 'issued DOM updates in 3rd script block');
+        container.style.backgroundColor = 'yellow';
+        container.innerText = 'updated background from red to yellow';
+
+        str = '';
+        for (let i = 0; i < 3e7; i++) {
+            str += i;
+            if (str.length > 1000) {
+                str = '';
+            }
+        }
     </script>
 </body>
 
