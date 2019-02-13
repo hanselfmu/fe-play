@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<body>
+    <div>
+        <p>DOMContentLoaded happens after all the DOM elements have been parsed, including all the synchronous scripts
+            and "deferred" scripts.</p>
+        <p>Async scripts however are not bound by DOMContentLoaded event; they should instead all be parsed and
+            executed before Load event.</p>
+        <p>Repaint usually involves the following 4 steps:</p>
+        <p>Recalculate Style -> Update Layer Tree -> Paint -> Composite Layers</p>
+        <p>Reflow usually involves the following 5 steps:</p>
+        <p>Recalculate Style -> Layout -> Update Layer Tree -> Paint -> Composite Layers</p>
+    </div>
+    <div id="repaint" class="box">Hello I'm a Repaint box</div>
+    <div id="reflow" class="box">Hello I'm a Reflow box</div>
+    <style>
+        .box {
+            display: inline-block;
+            margin: 100px;
+            width: 200px;
+            height: 200px;
+            background-color: red;
+        }
+    </style>
+
+    <script>
+        console.log('executing expensive inline script');
+        let str = '';
+        for (let i = 0; i < 3e7; i++) {
+            str += i;
+            if (str.length > 1000) {
+                str = '';
+            }
+        }
+        console.log('will load and parse stylesheets now; stylesheets GET requests are sent in parallel');
+        const start = performance.now();
+    </script>
+    <link href="http://localhost:3010/css/t1.css?delay=1" rel="stylesheet">
+    <link href="http://localhost:3010/css/t1.css?delay=2" rel="stylesheet">
+    <link href="http://localhost:3010/css/t1.css?delay=3" rel="stylesheet">
+    <!-- <img src="http:///localhost:3010/css/no1.img?delay=1"/> -->
+    <link href="http://localhost:3010/css/t1.css?delay=4" rel="stylesheet">
+    <link href="http://localhost:3010/css/t1.css?delay=5" rel="stylesheet">
+    <link href="http://localhost:3010/css/t1.css?delay=6" rel="stylesheet">
+    <link href="http://localhost:3010/css/t1.css?delay=7" rel="stylesheet">
+    <link href="http://localhost:3010/css/t1.css?delay=8" rel="stylesheet">
+    <link href="http://localhost:3010/css/t1.css?delay=9" rel="stylesheet">
+    <img src="http:///localhost:3010/css/no2.img?delay=1" />
+    <link href="http://localhost:3010/css/t1.css?delay=10" rel="stylesheet">
+    <link href="http://localhost:3010/css/t1.css" rel="stylesheet">
+    <link href="http://localhost:3010/css/t1.css?delay=1" rel="stylesheet">
+    <script>console.log(`2-sec delayed stylesheet will unblock this script after ${performance.now() - start}ms`);</script>
+    <link href="http://localhost:3010/css/t2.css?delay=5" rel="stylesheet">
+    <script>console.log(`5-sec delayed stylesheet will unblock this script after ${performance.now() - start}ms`);</script>
+    <link href="http://localhost:3010/css/t3.css?delay=3" rel="stylesheet">
+    <script>console.log(`3-sec delayed stylesheet will unblock this script after ${performance.now() - start}ms because it is after 5-sec delayed stylesheet`);</script>
+    <script async src="reflowAndRepaintScheduler.js"></script>
+</body>
+<script>console.log('finish parsing DOM');</script>
+
+</html>
