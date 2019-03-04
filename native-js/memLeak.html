@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Test Mem Leak</title>
 </head>
+
 <body>
-<div id="container"></div>
-<script>
-    function Point(x) {
-      this.x = x;
-    }
+    <div id="container">hello world memory leak</div>
 
-    function out() {
-      let p1 = new Point(1);
-      let p2 = new Point(2);
+    <script>
+        function cb(e) {
+            const c = document.getElementById('container');
+            c.parentElement.removeChild(container);
+            setTimeout(() => {
+                otherCaller(c);
+                // otherCaller(e.target);   // won't leak
+            }, 3000);
+        }
 
-      return function() {
-        return p2;
-      }
-    }
+        function otherCaller(obj) {
+            obj.a = 1;
+        }
 
-    let r1 = out();
-    r1();
-
-</script>
+        document.getElementById('container').addEventListener('click', cb);
+    </script>
 </body>
+
 </html>

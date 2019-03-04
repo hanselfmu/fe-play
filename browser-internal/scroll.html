@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Scroll</title>
+    <style>
+        #container div {
+            margin: 50px;
+            padding: 50px;
+            background-color: darksalmon;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container"></div>
+    <script>
+        const container = document.getElementById('container');
+        for (let i = 0; i < 1e4; i++) {
+            container.appendChild(document.createElement('div'));
+        }
+    </script>
+</body>
+
+</html>

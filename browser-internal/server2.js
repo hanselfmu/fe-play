@@ -3,7 +3,7 @@ const http = require('http');
 const app = new express();
 const path = require('path');
 
-const port = process.env.PORT || 3010;
+const port = process.env.PORT || 3011;
 
 app.use(express.static('client'));
 

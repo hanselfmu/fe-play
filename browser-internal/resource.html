@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Resource Timing</title>
 </head>
 
 <body>
@@ -31,20 +31,20 @@
 
     <script>
         console.log('executing expensive inline script');
-        let str = '';
-        for (let i = 0; i < 3e7; i++) {
-            str += i;
-            if (str.length > 1000) {
-                str = '';
+        let s = '';
+        for (let i = 0; i < 2; i++) {
+            s += i;
+            if (s.length > 1000) {
+                s = '';
             }
         }
         console.log('will load and parse stylesheets now; stylesheets GET requests are sent in parallel');
         const start = performance.now();
     </script>
-    <link href="http://localhost:3010/css/t1.css?delay=1" rel="stylesheet">
+    <!-- <link href="http://localhost:3010/css/t1.css?delay=1" rel="stylesheet">
     <link href="http://localhost:3010/css/t1.css?delay=2" rel="stylesheet">
     <link href="http://localhost:3010/css/t1.css?delay=3" rel="stylesheet">
-    <!-- <img src="http:///localhost:3010/css/no1.img?delay=1"/> -->
+    <img src="http:///localhost:3010/css/no1.img?delay=1"/>
     <link href="http://localhost:3010/css/t1.css?delay=4" rel="stylesheet">
     <link href="http://localhost:3010/css/t1.css?delay=5" rel="stylesheet">
     <link href="http://localhost:3010/css/t1.css?delay=6" rel="stylesheet">
@@ -53,8 +53,8 @@
     <link href="http://localhost:3010/css/t1.css?delay=9" rel="stylesheet">
     <img src="http:///localhost:3010/css/no2.img?delay=1" />
     <link href="http://localhost:3010/css/t1.css?delay=10" rel="stylesheet">
-    <link href="http://localhost:3010/css/t1.css" rel="stylesheet">
-    <link href="http://localhost:3010/css/t1.css?delay=1" rel="stylesheet">
+    <link href="http://localhost:3010/css/t1.css" rel="stylesheet"> -->
+    <link href="http://localhost:3010/css/t1.css?delay=2" rel="stylesheet">
     <script>console.log(`2-sec delayed stylesheet will unblock this script after ${performance.now() - start}ms`);</script>
     <link href="http://localhost:3010/css/t2.css?delay=5" rel="stylesheet">
     <script>console.log(`5-sec delayed stylesheet will unblock this script after ${performance.now() - start}ms`);</script>
