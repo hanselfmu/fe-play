@@ -22,7 +22,7 @@ events = {
 */
 const events = {};
 
-const uuidCounter = 0;
+let uuidCounter = 0;
 const uuidPropName = '_uuid';
 
 function addEventListener(el, type, listener, options = false, priority = 0) {
@@ -32,7 +32,7 @@ function addEventListener(el, type, listener, options = false, priority = 0) {
       bubble: {},
       length: 0,
     };
-    document.body.addEventListener(type, delegate);
+    document.addEventListener(type, delegate);
   }
 
   const useCapture = typeof options === "boolean" ? options : options.useCapture;
@@ -46,36 +46,40 @@ function addEventListener(el, type, listener, options = false, priority = 0) {
   if (!phasedEvents.hasOwnProperty(uuid)) {
     phasedEvents[uuid] = new PriorityQueue();
   }
-  const pq = events[type][uuid];
+  const pq = phasedEvents[uuid];
   pq.enqueue(listener, priority);
-
 }
 
 function delegate(e) {
   const { type, path } = e;
   if (!events[type]) return;
-  const { capturedEvents, bubbledEvents } = events[type];
-  const orderedListeners = [];
-  // the last three element in path are: html, window, document;
-  // we don't consider listening to those elements
-  path = path.slice(0, path.length - 3);
+  const { capture: capturedEvents, bubble: bubbledEvents } = events[type];
+  const captureListeners = [];
+  const bubbleListeners = [];
   for (let i = path.length - 1; i >= 0; i--) {
     const el = path[i];
     const uuid = el[uuidPropName];
     if (uuid) {
-      if (captureEvents[uuid]) {
-        orderedListeners
+      console.log(capturedEvents, uuid);
+      if (capturedEvents[uuid]) {
+        captureListeners.push(...capturedEvents[uuid].getSortedTasks());
       }
       if (bubbledEvents[uuid]) {
-
+        bubbleListeners.unshift(...bubbledEvents[uuid].getSortedTasks());
       }
     }
   }
+  captureListeners.forEach(listener => listener(e));
+  bubbleListeners.forEach(listener => listener(e));
 }
 
 /* PriorityQueue implementation */
 function PriorityQueue() {
   this.queue = [];
+}
+
+PriorityQueue.prototype.getSortedTasks = function() {
+  return this.queue.sort((el1, el2) => el1.priority - el2.priority).map(el => el.task);
 }
 
 PriorityQueue.prototype.enqueue = function(task, priority) {
