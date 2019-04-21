@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas Text vs. Image</title>
+</head>
+<body>
+<canvas id="c" width="1000" height="1000" style="transform: scale(0.5);"></canvas>
+<script>
+    let prevTime;
+    function runText() {
+      prevTime = performance.now();
+      const canvas = document.getElementById('c');
+      const ctx = canvas.getContext('2d');
+
+      const before = performance.now();
+
+      for (let i = 0; i < 10000; i++) {
+        ctx.clearRect(0, 0, 1000, 1000);
+
+        const rgb = i & 0xFF;
+        ctx.font = 'italic 48px sans-serif';
+//        ctx.fillStyle = `rgba(15, 20, 25, 0.01)`;
+        ctx.fillStyle = `rgba(${rgb}, ${rgb}, ${rgb}, 0.01)`;
+        ctx.save();
+        ctx.translate(39, 39);
+        ctx.translate(20, 20);
+        ctx.fillText('x 4', 200, 300);
+        ctx.restore();
+      }
+
+      const after = performance.now();
+
+      console.log('takes ', after - before);
+
+      requestAnimationFrame(showResult);
+    }
+
+    requestAnimationFrame(runText);
+
+    function showResult() {
+      const curTime = performance.now();
+
+      console.log(`took ${curTime - prevTime} ms for runText frame`);
+    }
+</script>
+</body>
+</html>

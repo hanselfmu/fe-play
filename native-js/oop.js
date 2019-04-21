@@ -1,36 +1,34 @@
-/**
- * Created by chan on 2/9/17.
- */
+"use strict";
 
-function Vehicle() {
-    this.name = 'vehicle';
-}
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-Vehicle.prototype.drive = function() {
-    console.log('I can drive');
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-    if (this.service()) {
+var Point = function () {
+  function Point(x, y) {
+    var _this = this;
 
-    } else {
-        
+    _classCallCheck(this, Point);
+
+    this.addArrow = function (p) {
+      _this.x += p.x;
+      _this.y += p.y;
+    };
+
+    this.x = x;
+    this.y = y;
+  }
+
+  _createClass(Point, [{
+    key: "addNormal",
+    value: function addNormal(p) {
+      this.x += p.x;
+      this.y += p.y;
     }
-};
+  }]);
 
-// car.drive() is public;
-// car.service() is NOT public;
+  return Point;
+}();
 
-var car = new Vehicle();
-var sportsCar = Object.create(car);
-
-car.drive();
-sportsCar.drive();
-
-console.log('now we give car a new drive method...');
-
-car.drive = function() {
-    console.log('I can drive with four wheels');
-};
-
-console.log('...and see how sportsCar, a child of car, drives');
-sportsCar.drive();
-
+var p1 = new Point(3, 5);
+var p2 = new Point(4, 5);
