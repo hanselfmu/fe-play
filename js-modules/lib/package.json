@@ -1,0 +1,6 @@
+{
+  "main": "./dist/alu.js",
+  "module": "./dist/alu.mjs",
+  "name": "lib",
+  "sideEffects": false
+}

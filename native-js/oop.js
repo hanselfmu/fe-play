@@ -1,34 +1,65 @@
-"use strict";
+console.log('testing OOP stuff');
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Point = function () {
-  function Point(x, y) {
-    var _this = this;
-
-    _classCallCheck(this, Point);
-
-    this.addArrow = function (p) {
-      _this.x += p.x;
-      _this.y += p.y;
-    };
-
-    this.x = x;
-    this.y = y;
+class PersonByClass {
+  ageSymbol;
+  constructor(name, age) {
+    const self = this;
+    privatize(self, 'name', name);
+    this.ageSymbol = Symbol('age');
+    this[this.ageSymbol] = age;
   }
 
-  _createClass(Point, [{
-    key: "addNormal",
-    value: function addNormal(p) {
-      this.x += p.x;
-      this.y += p.y;
-    }
-  }]);
+  getAge() {
+    return this[this.ageSymbol];
+  }
+  setAge(newAge) {
+    this[this.ageSymbol] = newAge;
+  }
+}
 
-  return Point;
-}();
+const PersonByFunc = (function () {
+  const names = new WeakMap();
+  const ages = new WeakMap();
+  function Person(name, age) {
+    names.set(this, name);
+    ages.set(this, age);
+  }
 
-var p1 = new Point(3, 5);
-var p2 = new Point(4, 5);
+  Person.prototype.getName = function () {
+    return names.get(this);
+  }
+
+  Person.prototype.setName = function (newName) {
+    return names.set(this, newName);
+  }
+
+  return Person;
+})();
+
+// downside is that a new getter-setter pair gets generated for every new object
+function privatize(self, fieldName, initialVal) {
+  const defaultSet = () => {
+    throw new TypeError('cannot modify member function');
+  };
+  let _val = initialVal;
+  const cappedFieldName = fieldName[0].toUpperCase() + fieldName.substring(1);
+  Object.defineProperty(self, `get${cappedFieldName}`, {
+    get() {
+      return function () {
+        return _val;
+      }
+    },
+    set: defaultSet,
+  });
+  Object.defineProperty(self, `set${cappedFieldName}`, {
+    get() {
+      return function (v) {
+        _val = v;
+      }
+    },
+    set: defaultSet,
+  });
+}
+
+const pbc = new PersonByClass('chan', 29);
+const pbf = new PersonByFunc('chan', 29);

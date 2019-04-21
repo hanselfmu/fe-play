@@ -1,0 +1,20 @@
+# System ignore
+.DS_Store
+
+# sass ignore
+.sass-cache/
+*.css.map
+
+＃js ignore
+*.js.map
+
+# npm ignore
+node_modules/
+npm-debug.log
+
+# project ignore
+build/
+bin/
+
+# idea ignore
+.idea/

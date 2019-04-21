@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Prioritized Event Delegation</title>
+    <style>
+        #container,
+        #parent,
+        #child {
+            margin: 100px;
+            padding: 100px;
+        }
+
+        #container {
+            background-color: bisque;
+        }
+
+        #parent {
+            background-color: cornflowerblue;
+        }
+
+        #child {
+            background-color: firebrick;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        I'm a container
+        <div id="parent">
+            I'm a parent
+            <div id="child">
+                I'm a child
+            </div>
+        </div>
+    </div>
+</body>
+<script src="eventAPI.js"></script>
+<script>
+    const child = document.getElementById('child');
+    const parent = document.getElementById('parent');
+    const container = document.getElementById('container');
+    addEventListener(child, 'click', () => {
+        console.log('I am a child');
+    });
+    addEventListener(parent, 'click', () => {
+        console.log('I am a parent');
+    }, true);
+    addEventListener(container, 'click', () => {
+        console.log('I am a container');
+    });
+</script>
+
+</html>

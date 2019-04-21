@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Paint Timing: SHORT</title>
+</head>
+
+<body>
+    <div>
+        It is certain that a black box will NEVER get painted, even though it is the default color.
+        None of the purple, green, or gray color will be painted either, because these script blocks
+        are executed too fast for browser to consider inserting a reflow (layout + paint + composition) procedure.
+        The red box will be the first painted box, because browser will spend many seconds executing this block;
+        it will then insert a reflow procedure.
+    </div>
+    <div id="container">Hello World</div>
+    <style>
+        #container {
+            width: 200px;
+            height: 200px;
+            background-color: black;
+        }
+    </style>
+    <script>
+        const COUNT = 1e5;
+        const container = document.getElementById('container');
+        container.style.backgroundColor = 'purple';
+    </script>
+    <script>
+        container.style.backgroundColor = 'green';
+    </script>
+    <script>
+        container.style.backgroundColor = 'gray';
+        container.style.width = '400px';
+        container.style.height = '240px';
+    </script>
+    <script>
+        container.style.backgroundColor = 'red';
+        container.innerText = 'updated background from black to red';
+
+        let str = '';
+        for (let i = 0; i < COUNT; i++) {
+            str += i;
+            if (str.length > 1000) {
+                str = '';
+            }
+        }
+    </script>
+
+    <script>
+        setTimeout(() => {
+            container.style.backgroundColor = '#10bdc4';
+            container.innerText = 'updated background from yellow to a weird blue';
+
+            let str = '';
+            for (let i = 0; i < COUNT; i++) {
+                str += i;
+                if (str.length > 1000) {
+                    str = '';
+                }
+            }
+        }, 1000);
+    </script>
+
+    <script>
+        container.style.backgroundColor = 'yellow';
+        container.innerText = 'updated background from red to yellow';
+
+        str = '';
+        for (let i = 0; i < COUNT; i++) {
+            str += i;
+            if (str.length > 1000) {
+                str = '';
+            }
+        }
+    </script>
+</body>
+
+</html>
