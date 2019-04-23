@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from '../../../react/build/dist/react.development';
 import List from './c/List';
 import './App.css';
 

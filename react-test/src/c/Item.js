@@ -1,11 +1,17 @@
-import React, { Component } from 'react';
+import React, { Component, PureComponent } from 'react';
+import { addRender } from '../perf';
 
 class Item extends Component {
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   return this.props !== nextProps || this.state !== nextState;
+  // }
+
   render() {
-    const { itemID, itemName } = this.props;
+    addRender();
+    const { id, name } = this.props;
     return (
-      <div className="List">
-        {itemID}: {itemName}
+      <div className="item">
+        {id}: {name}
       </div>
     );
   }
