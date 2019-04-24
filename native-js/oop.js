@@ -33,6 +33,10 @@ const PersonByFunc = (function() {
     return names.set(this, newName);
   }
 
+  Person.prototype.sayName = function() {
+    console.log(names.get(this));
+  }
+
   return Person;
 })();
 
@@ -63,3 +67,62 @@ function privatize(self, fieldName, initialVal) {
 
 const pbc = new PersonByClass('chan', 29);
 const pbf = new PersonByFunc('chan', 29);
+
+/*
+Classical Inheritances
+There are three common ways:
+1. class extends;
+2. Object.setPrototypeOf
+3. Object.create
+*/
+class Driver extends PersonByFunc {
+  constructor(car) {
+    super();
+    this.car = car;
+  }
+  sayName() {
+    console.log(`this driver is ${this.getName()} and has a car ${this.car}`);
+  }
+}
+
+function Student(name, age, grade) {
+  PersonByFunc.call(this, name, age);
+  this.grade = grade;
+}
+
+Student.prototype.sayName = function() {
+  console.log(`this student is ${this.getName()} with grade ${this.grade}`);
+}
+
+Object.setPrototypeOf(Student.prototype, PersonByFunc.prototype);
+
+function Teacher(name, age, tenure) {
+  PersonByFunc.call(this, name, age);
+  this.tenure = tenure;
+}
+
+// Object.create also requires explicit (re)assignment of constructor because constructor is not enumerable.
+// In fact, to resemble the original inheritance, constructor should be defined using Object.defineProperty.
+Teacher.prototype.sayName = function() {
+  console.log(`this teacher is ${this.getName()} and does${this.tenure ? '' : ' not'} have tenure`);
+}
+Teacher.prototype = Object.assign(Object.create(PersonByFunc.prototype, {
+  constructor: {
+    value: Teacher,
+  }
+}), Teacher.prototype);
+// Object.defineProperty(Teacher.prototype, 'constructor', {
+//   value: Teacher,
+// });
+
+const dri = new Driver('han', 30, 'bmw');
+console.log(dri);
+const tea = new Teacher('pucca', 28, true);
+console.log(tea);
+const stu = new Student('pucca', 28, 'A');
+console.log(stu);
+
+/*
+prototypal Inheritance
+
+*/

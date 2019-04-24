@@ -1,7 +1,6 @@
-import React, { Component } from '../../../react/build/dist/react.development';
+import React, { Component } from 'React';
 import List from './c/List';
 import './App.css';
-
 
 class App extends Component {
   render() {

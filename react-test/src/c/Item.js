@@ -1,7 +1,7 @@
-import React, { Component, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import { addRender } from '../perf';
 
-class Item extends Component {
+class Item extends PureComponent {
   // shouldComponentUpdate(nextProps, nextState) {
   //   return this.props !== nextProps || this.state !== nextState;
   // }

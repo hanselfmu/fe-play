@@ -1,8 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-const reactInternals = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
-
-console.log(reactInternals);
 
 class Input extends Component {
   constructor(props) {
@@ -18,7 +14,6 @@ class Input extends Component {
     this.setState({
       value: event.target.value,
     });
-    console.log(reactInternals.ReactDebugCurrentFrame.getCurrentStack)
   }
 
   render() {
