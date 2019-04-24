@@ -17,7 +17,7 @@ class PersonByClass {
   }
 }
 
-const PersonByFunc = (function() {
+const PersonByFunc = (function () {
   const names = new WeakMap();
   const ages = new WeakMap();
   function Person(name, age) {
@@ -25,11 +25,11 @@ const PersonByFunc = (function() {
     ages.set(this, age);
   }
 
-  Person.prototype.getName = function() {
+  Person.prototype.getName = function () {
     return names.get(this);
   }
 
-  Person.prototype.setName = function(newName) {
+  Person.prototype.setName = function (newName) {
     return names.set(this, newName);
   }
 
@@ -49,7 +49,7 @@ function privatize(self, fieldName, initialVal) {
   const cappedFieldName = fieldName[0].toUpperCase() + fieldName.substring(1);
   Object.defineProperty(self, `get${cappedFieldName}`, {
     get() {
-      return function() {
+      return function () {
         return _val;
       }
     },
@@ -57,7 +57,7 @@ function privatize(self, fieldName, initialVal) {
   });
   Object.defineProperty(self, `set${cappedFieldName}`, {
     get() {
-      return function(v) {
+      return function (v) {
         _val = v;
       }
     },

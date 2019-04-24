@@ -2,7 +2,7 @@ function PriorityQueue() {
   this.queue = [];
 }
 
-PriorityQueue.prototype.enqueue = function(task, priority) {
+PriorityQueue.prototype.enqueue = function (task, priority) {
   const q = this.queue;
   const el = { task, priority };
   q.push(el);
@@ -15,7 +15,7 @@ PriorityQueue.prototype.enqueue = function(task, priority) {
   }
 }
 
-PriorityQueue.prototype.dequeue = function() {
+PriorityQueue.prototype.dequeue = function () {
   const q = this.queue;
   this.swap(0, q.length - 1);
   const el = q.pop();
@@ -40,7 +40,7 @@ PriorityQueue.prototype.dequeue = function() {
   return el;
 }
 
-PriorityQueue.prototype.highestPriorityAmongThree = function(idx1, idx2, idx3) {
+PriorityQueue.prototype.highestPriorityAmongThree = function (idx1, idx2, idx3) {
   const q = this.queue;
   const maxIdx = q.length - 1;
   const pr1 = idx1 > maxIdx ? Number.MAX_VALUE : q[idx1].priority;
@@ -50,7 +50,7 @@ PriorityQueue.prototype.highestPriorityAmongThree = function(idx1, idx2, idx3) {
   return Math.min(pr1, pr2, pr3);
 }
 
-PriorityQueue.prototype.swap = function(idx1, idx2) {
+PriorityQueue.prototype.swap = function (idx1, idx2) {
   const q = this.queue;
   const tmp = q[idx1];
   q[idx1] = q[idx2];

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas Testing</title>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+    const canvas = document.getElementById('c');
+    let context = canvas.getContext('2d');
+    console.log(context.__proto__);
+
+    context = new Proxy(context, {
+      get(target, key) {
+        console.log(`getting ${key} from ${target}`);
+        return target[key].bind(target);
+      },
+    });
+    context.fillRect(0, 0, 100, 100);
+</script>
+</body>
+</html>

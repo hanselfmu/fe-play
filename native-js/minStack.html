@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Min Stack</title>
+</head>
+
+<body>
+</body>
+<script>
+    class MinStack {
+        constructor() {
+            this.s = [];
+            this.min = null;
+            this.auxSize = 0;
+        }
+
+        push(v) {
+            if (this.min === null) {
+                this.min = v;
+                this._push(v);
+                return;
+            }
+            if (v > this.min) {
+                this._push(v);
+                return;
+            }
+            const oldMin = this.min;
+            this.min = v;
+            this._push(oldMin);
+            this._push(v);
+            this.auxSize++;
+        }
+
+        pop() {
+            const v = this._pop();
+            if (v === null) { return null; }
+            if (v === this.min) {
+                this.min = this._pop();
+                if (this.auxSize > 0) {
+                    this.auxSize--;
+                }
+            }
+            return v;
+        }
+
+        size() {
+            return this.s.length - this.auxSize;
+        }
+
+        getMin() {
+            return this.min;
+        }
+
+        _push(v) {
+            this.s.push(v);
+        }
+        _pop() {
+            if (this.s.length === 0) {
+                return null;
+            }
+            return this.s.pop();
+        }
+    }
+</script>
+
+</html>
