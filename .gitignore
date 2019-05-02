@@ -18,3 +18,4 @@ bin/
 
 # idea ignore
 .idea/
+.vscode
