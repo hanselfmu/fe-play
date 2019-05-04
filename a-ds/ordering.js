@@ -1,47 +1,41 @@
 function quickSort(list, l, r) {
-    if (l >= r) return;
-    const pivot = list[r];
-    let newL = l - 1;
-    for (let j = l; j < r; j++) {
-        if (list[j] <= pivot) {
-            newL++;
-            _swap(list, newL, j)
-        }
+  if (l >= r) return;
+  const pivot = list[r];
+  let newL = l - 1;
+  for (let j = l; j < r; j++) {
+    if (list[j] <= pivot) {
+      newL++;
+      _swap(list, newL, j)
     }
-    _swap(list, ++newL, r);
-    quickSort(list, l, newL - 1);
-    quickSort(list, newL + 1, r);
+  }
+  _swap(list, ++newL, r);
+  quickSort(list, l, newL - 1);
+  quickSort(list, newL + 1, r);
 }
-
-function Heap() {
-
-}
-
-function BST() { }
 
 function binarySearch(list, target) {
-    let l = 0;
-    let r = list.length - 1;
-    if (target < list[l]) return l;
-    if (target > list[r]) return r + 1;
-    while (l < r) {
-        if (r - l === 1) return r;
-        const m = Math.floor((l + r) / 2);
-        const mv = list[m];
-        if (target === mv) return m;
-        if (target < mv) {
-            r = m;
-        } else {
-            l = m;
-        }
+  let l = 0;
+  let r = list.length - 1;
+  if (target < list[l]) return l;
+  if (target > list[r]) return r + 1;
+  while (l < r) {
+    if (r - l === 1) return r;
+    const m = Math.floor((l + r) / 2);
+    const mv = list[m];
+    if (target === mv) return m;
+    if (target < mv) {
+      r = m;
+    } else {
+      l = m;
     }
+  }
 }
 
 // helpers
 function _swap(list, a, b) {
-    const tmp = list[a];
-    list[a] = list[b];
-    list[b] = tmp;
+  const tmp = list[a];
+  list[a] = list[b];
+  list[b] = tmp;
 }
 
 /*
