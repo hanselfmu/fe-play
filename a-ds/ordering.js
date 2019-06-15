@@ -15,20 +15,20 @@ function quickSort(list, l, r) {
 
 function binarySearch(list, target) {
   let l = 0;
-  let r = list.length - 1;
+  let r = list.length;
   if (target < list[l]) return l;
-  if (target > list[r]) return r + 1;
+  if (target > list[r - 1]) return r;
   while (l < r) {
-    if (r - l === 1) return r;
     const m = Math.floor((l + r) / 2);
     const mv = list[m];
     if (target === mv) return m;
     if (target < mv) {
       r = m;
     } else {
-      l = m;
+      l = m + 1;
     }
   }
+  return l;
 }
 
 // helpers
@@ -44,7 +44,8 @@ test cases
 const list = [9, -2, 3, 4, 6, 2, 1, -4, 5, 9, 6, 14, 15, -1, 10, 3, 8, 12, 3, -4];
 quickSort(list, 0, list.length - 1);
 console.log('sorted', list);
-console.log('searching for 5', binarySearch(list, 5));
-console.log('searching for 7', binarySearch(list, 7));
-console.log('searching for 11', binarySearch(list, 11));
+console.log('searching for 5', list[binarySearch(list, 5)]);
+console.log('searching for 7', list[binarySearch(list, 7)]);
+console.log('searching for 11', list[binarySearch(list, 11)]);
 console.log('searching for 16', binarySearch(list, 16));
+console.log('searching for -5', binarySearch(list, -5));

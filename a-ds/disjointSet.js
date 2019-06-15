@@ -79,7 +79,7 @@ function getRandomInt(max) {
 // For a simple tree with no path compression, it can grow as tall as O(maxNumber),
 // where for a union-by-size / rank tree with path compression, it can grow as tall as O(log(maxNumber)).
 // The bigger this number is set, the more advantage an advanced disjoint set solution can provide.
-const maxNumber = 5000;
+const maxNumber = 100;
 const actionSequence = [];
 for (let i = 0; i < 1e6; i++) {
     const id = getRandomInt(2);
