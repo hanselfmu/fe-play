@@ -3,7 +3,7 @@ function PriorityQueue(priorityFn) {
   this.priorityFn = priorityFn; // form of (a, b) => is a higher priority than b
 }
 
-PriorityQueue.prototype.enqueue = function(v) {
+PriorityQueue.prototype.enqueue = function (v) {
   const q = this.q;
   let i = q.length;
   let parent = Math.floor((i - 1) / 2); // 0 -> 1, 2; 2 -> 5, 6;
@@ -14,25 +14,24 @@ PriorityQueue.prototype.enqueue = function(v) {
   while (parent >= 0 && this.priorityFn(q[i], q[parent])) {
     _swap(q, i, parent);
     i = parent;
-    parent = (i - 1) / 2;
+    parent = Math.floor((i - 1) / 2);
   }
 }
 
-PriorityQueue.prototype.dequeue = function() {
+PriorityQueue.prototype.dequeue = function () {
   const q = this.q;
   let lastIdx = q.length - 1;
   if (lastIdx < 0) return null;
   _swap(q, 0, lastIdx);
-  lastIdx--;
   let i = 0;
   let lc = i * 2 + 1;
   let rc = i * 2 + 2;
-  while (lc <= lastIdx) {
+  while (lc < lastIdx) {
     let j = i;
     if (this.priorityFn(q[lc], q[i])) {
       j = lc;
     }
-    if (rc <= lastIdx && this.priorityFn(q[rc], q[j])) {
+    if (rc < lastIdx && this.priorityFn(q[rc], q[j])) {
       j = rc;
     }
     if (i === j) break;
