@@ -1,0 +1,22 @@
+<html>
+
+<body>
+    <script>
+        const bench = 1e7;
+        const m = new Map();
+        const o = {};
+
+        let now = performance.now();
+        for (let i = 0; i < bench; i++) {
+            o[i % 1e4] = i;
+        }
+        console.log(`setting object took ${performance.now() - now}ms`);
+        now = performance.now();
+        for (let i = 0; i < bench; i++) {
+            m.set(i % 1e4, i);
+        }
+        console.log(`setting map took ${performance.now() - now}ms`);
+    </script>
+</body>
+
+</html>

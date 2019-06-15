@@ -25,6 +25,28 @@ perf.mark('mark_end_innerHTML');
 perf.measure('measure_createTextNode', 'mark_start_createTextNode', 'mark_end_createTextNode');
 perf.measure('measure_innerHTML', 'mark_start_innerHTML', 'mark_end_innerHTML');
 
+// #1-1:
+perf.mark('mark_start_createElement');
+
+for (let i = 0; i < 1000; i++) {
+    const newDiv = document.createElement('div');
+    newDiv.appendChild(document.createTextNode('hello world'));
+    body.appendChild(newDiv);
+}
+
+perf.mark('mark_end_createElement');
+
+perf.mark('mark_start_innerHTML2');
+
+for (let i = 0; i < 1000; i++) {
+    body.innerHTML += 'this is No. ' + i;
+}
+
+perf.mark('mark_end_innerHTML2');
+
+perf.measure('measure_createElement', 'mark_start_createElement', 'mark_end_createElement');
+perf.measure('measure_innerHTML2', 'mark_start_innerHTML2', 'mark_end_innerHTML2');
+
 
 // #2: (functional) for-each vs. for-in vs. simple for loop
 var testArr = new Array(3000000);

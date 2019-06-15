@@ -1,0 +1,94 @@
+<html>
+
+<head>
+    <title>DOM Traversal</title>
+    <style>
+        [class^="level-"] {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        Container
+    </div>
+    <script>
+        function traverseArrayStyle(node) {
+            if (!node) return 0;
+            let count = 1;
+            const children = node.childNodes;
+            for (let i = 0; i < children.length; i++) {
+                count += traverseArrayStyle(children[i]);
+            }
+            return count;
+        }
+
+        function traverseLinkedListStyle(node) {
+            if (!node) return 0;
+            let count = 1;
+            for (let child = node.firstChild; child !== null; child = child.nextSibling) {
+                count += traverseLinkedListStyle(child);
+            }
+            return count;
+        }
+
+        const container = document.querySelector('.container');
+        console.log(container);
+
+        //const levelItemCounts = [5, 7, 10, 5, 100];
+        const levelItemCounts = [1, 10, 20, 500];
+
+        const levels = document.createDocumentFragment();
+        levels.append('LEVELS');
+        const appendLevel = l => {
+            if (l === levelItemCounts.length) return null;
+            const itemCount = levelItemCounts[l];
+            const list = [];
+            for (let i = 0; i < itemCount; i++) {
+                const curLevel = document.createElement('div');
+                curLevel.classList.add(`level-${l}`);
+                curLevel.append(`level ${l}`);
+                const children = appendLevel(l + 1);
+                children && curLevel.append(...children);
+                list.push(curLevel);
+            }
+            return list;
+        };
+        levels.append(...appendLevel(0));
+        //container.appendChild(levels);
+
+
+        //window.addEventListener('load', () => {
+        traverseArrayStyle(levels);
+        traverseLinkedListStyle(levels);
+
+        let t1;
+        let t2;
+        let now = performance.now();
+        for (let i = 0; i < 10; i++) {
+            t1 = traverseArrayStyle(levels);
+        }
+        console.log(`10 array-style traversals took ${performance.now() - now}ms`);
+        now = performance.now();
+        for (let i = 0; i < 10; i++) {
+            t2 = traverseLinkedListStyle(levels);
+        }
+        console.log(`10 linked-list-style traversals took ${performance.now() - now}ms`);
+        console.log(t1, t2);
+
+        // dom content removal
+        //setTimeout(() => {
+        now = performance.now();
+        container.innerHTML = '';
+        console.log(`remove ${t1} nodes using innerHTML took ${performance.now() - now} ms`);
+
+            //}, 0);
+        //});
+
+        // warm up
+
+    </script>
+</body>
+
+</html>
