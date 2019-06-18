@@ -3,7 +3,7 @@ function PriorityQueue(priorityFn) {
   this.priorityFn = priorityFn; // form of (a, b) => is a higher priority than b
 }
 
-PriorityQueue.prototype.enqueue = function(v) {
+PriorityQueue.prototype.enqueue = function (v) {
   const q = this.q;
   let i = q.length;
   let parent = Math.floor((i - 1) / 2); // 0 -> 1, 2; 2 -> 5, 6;
@@ -18,7 +18,7 @@ PriorityQueue.prototype.enqueue = function(v) {
   }
 }
 
-PriorityQueue.prototype.dequeue = function() {
+PriorityQueue.prototype.dequeue = function () {
   const q = this.q;
   let lastIdx = q.length - 1;
   if (lastIdx < 0) return null;
