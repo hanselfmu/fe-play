@@ -78,7 +78,7 @@ var palindromePairs = function(words) {
 
   return result;
 };
-console.log(palindromePairs(["a","ab"]));
+// console.log(palindromePairs(["a","ab"]));
 
 /**
  * @param {string} beginWord
@@ -451,7 +451,7 @@ var isMatch = function(s, p) {
 
   return _isMatch(0, 0, dp);
 };
-console.log(isMatch('a', 'a****'));
+// console.log(isMatch('a', 'a****'));
 
 /*
 Given an input string (s) and a pattern (p), implement regular expression matching with support for '.' and '*'.
@@ -777,3 +777,58 @@ var romanToInt = function(s) {
   if (i < s.length) sum += MAP[s[i]];
   return sum;
 };
+
+/*
+Find the length of the longest substring T of a given string (consists of lowercase letters only)
+such that every character in T appears no less than k times.
+
+Example 1:
+Input:
+s = "aaabb", k = 3
+
+Output:
+3
+
+The longest substring is "aaa", as 'a' is repeated 3 times.
+Example 2:
+Input:
+s = "ababbc", k = 2
+
+Output:
+5
+The longest substring is "ababb", as 'a' is repeated 2 times and 'b' is repeated 3 times.
+*/
+/**
+ * @param {string} s
+ * @param {number} k
+ * @return {number}
+ */
+var longestSubstring = function(s, k) {
+  // basic idea is that we keep a counter of occurrences for each char,
+  // and use a prefix-sum-like 2D array to store count info of s[l...r]
+  const N = s.length;
+  if (N < k) return 0;
+  const countsAt = [];
+  let counts = new Array(26);
+  for (let i = 0; i < N; i++) {
+    const offsetCode = s.charCodeAt(i) - 97;
+    counts[offsetCode]++;
+    countsAt.push(counts.slice());
+  }
+  let charLessThanKTimes = -1;
+  for (let offsetCode = 0; offsetCode < 26; offsetCode++) {
+    if (countsAt[offsetCode] < k) {
+      charLessThanKTimes = offsetCode;
+      break;
+    }
+  }
+
+  
+
+  const _longest = (l, r) => {
+
+  };
+};
+
+console.log(longestSubstring('accbbdec', 2));
+

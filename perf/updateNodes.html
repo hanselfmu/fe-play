@@ -1,45 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
+
 <body>
-<div id="container"></div>
-<script>
-    for (let i = 0; i < 10; i++) {
-      const nodeCount = 100000;
-      const container = document.getElementById('container');
-      let start = new Date();
-      for (let i = 0; i < nodeCount; i++) {
-        const child = document.createElement('p');
-        child.innerHTML = 'this is a test paragraph';
-        container.appendChild(child);
-      }
-      let end = new Date();
-      console.log(`it took ${end.getTime() - start.getTime()} ms to add all the nodes with appendChild`);
+    <div id="container"></div>
+    <script>
+        for (let i = 0; i < 1; i++) {
+            const nodeCount = 100000;
+            const container = document.getElementById('container');
+            /*
+            let start = new Date();
+            for (let i = 0; i < nodeCount; i++) {
+              const child = document.createElement('p');
+              child.innerHTML = 'this is a test paragraph';
+              container.appendChild(child);
+            }
+            let end = new Date();
+            console.log(`it took ${end.getTime() - start.getTime()} ms to add all the nodes with appendChild`);
+      
+            start = new Date();
+            container.innerHTML = '';
+            end = new Date();
+            console.log(`it took ${end.getTime() - start.getTime()} ms to remove all the nodes with innerHTML`);
+      
+            start = new Date();
+            let innerStr = '';
+            for (let i = 0; i < nodeCount; i++) {
+              innerStr += '<p>this is a test paragraph</p>';
+            }
+            container.innerHTML = innerStr;
+            end = new Date();
+            console.log(`it took ${end.getTime() - start.getTime()} ms to add all the nodes with innerHTML`);
+      
+            start = new Date();
+            while (container.hasChildNodes()) {
+              container.removeChild(container.lastChild);
+            }
+            end = new Date();
+            console.log(`it took ${end.getTime() - start.getTime()} ms to remove all the nodes with removeChild`);
+            */
 
-      start = new Date();
-      container.innerHTML = '';
-      end = new Date();
-      console.log(`it took ${end.getTime() - start.getTime()} ms to remove all the nodes with innerHTML`);
+            /*
+            normal createElement
+            took 331.1550000216812ms
+            plus painting DOM took 6930.855000042357ms
+            */
 
-      start = new Date();
-      let innerStr = '';
-      for (let i = 0; i < nodeCount; i++) {
-        innerStr += '<p>this is a test paragraph</p>';
-      }
-      container.innerHTML = innerStr;
-      end = new Date();
-      console.log(`it took ${end.getTime() - start.getTime()} ms to add all the nodes with innerHTML`);
+            setTimeout(() => {
+                console.log(`plus painting DOM took ${performance.now() - now}ms`);
+            }, 0);
+            let now = performance.now();
+            const holder = document.createDocumentFragment();
+            for (let i = 0; i < 200000; i++) {
+                const el = document.createElement('li');
+                el.innerText = 'test line here' + i;
+                holder.appendChild(el);
+            }
+            container.appendChild(holder);
+            console.log(`took ${performance.now() - now}ms`);
+            /*
+            we can see that using fragment incurs the same amount of DOM GC, and overall took about the same time to
+            complete the task of appending 200,000 elements.
+            */
 
-      start = new Date();
-      while (container.hasChildNodes()) {
-        container.removeChild(container.lastChild);
-      }
-      end = new Date();
-      console.log(`it took ${end.getTime() - start.getTime()} ms to remove all the nodes with removeChild`);
-    }
-</script>
+        }
+    </script>
 </body>
+
 </html>
