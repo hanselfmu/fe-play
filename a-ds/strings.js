@@ -823,12 +823,168 @@ var longestSubstring = function(s, k) {
     }
   }
 
-  
+
 
   const _longest = (l, r) => {
 
   };
 };
 
-console.log(longestSubstring('accbbdec', 2));
+/*
+Given string S and a dictionary of words words, find the number of words[i] that is a subsequence of S.
 
+Example :
+Input: 
+S = "abcde"
+words = ["a", "bb", "acd", "ace"]
+Output: 3
+Explanation: There are three words in words that are a subsequence of S: "a", "acd", "ace".
+Note:
+
+All words in words and S will only consists of lowercase letters.
+The length of S will be in the range of [1, 50000].
+The length of words will be in the range of [1, 5000].
+The length of words[i] will be in the range of [1, 50].
+*/
+/**
+ * @param {string} S
+ * @param {string[]} words
+ * @return {number}
+ */
+var numMatchingSubseq = function(S, words) {
+  // 1. preprocess S to record indices of chars in S
+  const charIndices = new Array(26);
+  const ASCII_OFFSET = 'a'.charCodeAt(0);
+  for (let i = 0; i < 26; i++) charIndices[i] = [];
+  for (let i = 0; i < S.length; i++) {
+    charIndices[S.charCodeAt(i) - ASCII_OFFSET].push(i);
+  }
+
+  // find smallest i that is larger than t; t is guaranteed to be smaller than the largest value in indices
+  const findNext = (indices, t) => {
+    let l = 0;
+    let r = indices.length - 1;
+    while (l < r) {
+      const m = ~~((l + r) / 2);
+      if (indices[m] <= t) {
+        l = m + 1;
+      } else {
+        r = m;
+      }
+    }
+    return indices[r];
+  }
+
+  let count = 0;
+  for (let word of words) {
+    let leftBound = -1;
+    let ci;
+    for (ci = 0; ci < word.length; ci++) {
+      const charCodeOffset = word.charCodeAt(ci) - ASCII_OFFSET;
+      const indices = charIndices[charCodeOffset];
+      if (indices.length === 0 || leftBound >= indices[indices.length - 1]) break;
+      leftBound = findNext(indices, leftBound);
+    }
+    if (ci === word.length) count++;
+  }
+
+  return count;
+};
+
+/*
+Given a string which contains only lowercase letters, remove duplicate letters so that
+every letter appear once and only once. You must make sure your result is the smallest
+in lexicographical order among all possible results.
+Example 1:
+
+Input: "bcabc"
+Output: "abc"
+Example 2:
+
+Input: "cbacdcbc"
+Output: "acdb"
+*/
+/**
+ * @param {string} s
+ * @return {string}
+ */
+var removeDuplicateLetters = function(s) {
+  if (s.length < 2) return s;
+  const charCounts = {};
+  for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (!charCounts[c]) charCounts[c] = 0;
+      charCounts[c]++;
+  }
+  let result = [];
+  const visited = {};
+  for (let c of s) {
+      charCounts[c]--;
+      if (visited[c]) {
+          continue;
+      }
+      // this moves forward c as far as possible;
+      // as long as the char it passes is larger and is not
+      // the last of its kind.
+      while (result.length > 0 && c < result[result.length - 1]) {
+          const lastChar = result.pop();
+          if (charCounts[lastChar] > 0) {
+              delete visited[lastChar];
+          } else {
+              result.push(lastChar);
+              break;
+          }
+      }
+      visited[c] = true;
+      result.push(c);
+  }
+  return result.join('');
+};
+
+// console.log(removeDuplicateLetters('bcabc'));
+
+/**
+ * @param {string} s
+ * @param {string} t
+ * @return {string}
+ */
+var minWindow = function(s, t) {
+  if (s.length < t.length) return '';
+  
+  const reqMap = {};
+  for (let req of t) {
+    if (!reqMap[req]) {
+      reqMap[req] = 1;
+    } else {
+      reqMap[req]++;
+    }
+  }
+  
+  let l = 0;
+  let minWindow = '';
+  let missing = t.length;
+  for (let r = 0; r < s.length; r++) {
+    const cur = s[r];
+    if (reqMap[cur] === undefined) continue;
+    reqMap[cur]--;
+    if (reqMap[cur] >= 0) missing--;
+    while (missing === 0) {
+      const left = s[l];
+      if (reqMap[left] !== undefined) {
+        reqMap[left]++;
+        if (reqMap[left] > 0) {
+          missing++;
+          if (minWindow === '' || r + 1 - l < minWindow.length) {
+            minWindow = s.substring(l, r + 1);
+            if (minWindow.length === t.length) return minWindow;
+          }
+        }
+      }
+      l++;
+    }
+  }
+  
+  return minWindow;
+};
+
+console.log(minWindow('abbcdbadcbade', 'ddadd'));

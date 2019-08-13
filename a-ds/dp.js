@@ -1158,3 +1158,83 @@ var isScramble = function(s1, s2) {
 };
 
 // console.log(isScramble('great', 'tagre'));
+
+/*
+In the "100 game," two players take turns adding, to a running total, any integer from 1..10.
+The player who first causes the running total to reach or exceed 100 wins.
+What if we change the game so that players cannot re-use integers?
+For example, two players might take turns drawing from a common pool of numbers of 1..15 without replacement until they reach a total >= 100.
+Given an integer maxChoosableInteger and another integer desiredTotal, determine if the first player to move can force a win, assuming both players play optimally.
+
+You can always assume that maxChoosableInteger will not be larger than 20 and desiredTotal will not be larger than 300.
+
+Example
+
+Input:
+maxChoosableInteger = 10
+desiredTotal = 11
+
+Output:
+false
+
+Explanation:
+No matter which integer the first player choose, the first player will lose.
+The first player can choose an integer from 1 up to 10.
+If the first player choose 1, the second player can only choose integers from 2 up to 10.
+The second player will win by choosing 10 and get a total = 11, which is >= desiredTotal.
+Same with other integers chosen by the first player, the second player will always win.
+*/
+/**
+ * @param {number} maxChoosableInteger
+ * @param {number} desiredTotal
+ * @return {boolean}
+ */
+var canIWin = function(maxChoosableInteger, desiredTotal) {
+  if (maxChoosableInteger >= desiredTotal) return true;
+  if (maxChoosableInteger * (maxChoosableInteger + 1) / 2 < desiredTotal) return false;
+
+  // first person chooses 1 to max, and the second person can choose from the rest.
+  // if what's left is sure to be a win, then this is not doable;
+  // there has to be a winnable path
+  // dp[chosen_mask] = if can win with these chosen numbers
+  const allChosen = (1 << maxChoosableInteger) - 1;
+  const dp = new Array(allChosen + 1).fill(0);  // 0: not visited; 1: true; 2: false
+
+  const choose = n => 1 << (n - 1);
+
+  function canWin(chosen, sum) {
+    if (dp[chosen] !== 0) return dp[chosen] === 1;
+    if (sum >= desiredTotal) {
+      dp[chosen] = 1;
+      return true;
+    }
+    // opponent chooses; if he can find a candidate to win, then we return false
+    for (let cand = 1; cand <= maxChoosableInteger; cand++) {
+      const curMask = choose(cand);
+      if ((chosen & curMask) === 0) {
+        // candidate has not been chosen
+        if (canWin(chosen | curMask, sum + cand)) {
+          dp[chosen] = 2;
+          return false;
+        }
+      }
+    }
+
+    dp[chosen] = 1;
+    return true;
+  }
+
+  for (let cand = 1; cand <= maxChoosableInteger; cand++) {
+    if (canWin(choose(cand), cand)) return true;
+  }
+  return false;
+};
+
+// 1 2 3 4
+/*
+A: 1
+B: 4
+A: 3
+B: 4
+*/
+console.log(canIWin(4, 7));

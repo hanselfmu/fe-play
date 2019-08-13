@@ -1,0 +1,40 @@
+<html>
+
+<body>
+    <script>
+        setTimeout(() => {
+            console.log('set timeout');
+        }, 1);
+
+        Promise.resolve().then(() => {
+            console.log('promise resolve');
+            setTimeout(() => {
+                console.log('set timeout in promise');
+            }, 0);
+        });
+
+        requestAnimationFrame(() => {
+
+            console.log('rAF');
+            Promise.resolve().then(() => {
+                console.log('promise resolve in rAF');
+            });
+        });
+
+        requestIdleCallback(() => {
+            console.log('rIC');
+        });
+        console.log('sync');
+/*
+                let t = performance.now();
+                let count = 0;
+                setInterval(() => {
+                    let n = performance.now();
+                    console.log(n - t);
+                    t = n;
+                }, 0);
+        */
+    </script>
+</body>
+
+</html>

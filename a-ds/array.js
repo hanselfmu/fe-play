@@ -600,8 +600,128 @@ var findMin = function(nums) {
   }
 };
 
-console.log(findMin([4,5,6,7,1,2,3]));
+/*
+Given n non-negative integers representing an elevation map where the width of each bar is 1,
+compute how much water it is able to trap after raining.
+
+The above elevation map is represented by array [0,1,0,2,1,0,1,3,2,1,2,1].
+In this case, 6 units of rain water (blue section) are being trapped. Thanks Marcos for contributing this image!
+
+Example:
+
+Input: [0,1,0,2,1,0,1,3,2,1,2,1]
+Output: 6
+*/
+/**
+ * @param {number[]} height
+ * @return {number}
+ */
+var trap = function(height) {
+  if (height.length < 3) return 0;
+  // basic idea is to travel from start to next higher part, and calculate the rains trapped;
+  // if no more higher bar is found, travel reversely.
+  const nextHigher = new Array(height.length).fill(-1);
+  const prevHigher = new Array(height.length).fill(-1);
+  let nh = -1;
+  for (let i = height.length - 1; i >= 0; i--) {
+    nextHigher[i] = nh > height[i] ? nh : -1;
+    nh = Math.max(nh, height[i]);
+  }
+  let ph = -1;
+  for (let i = 0; i < height.length; i++) {
+    prevHigher[i] = ph > height[i] ? ph : -1;
+    ph = Math.max(ph, height[i]);
+  }
+
+  let water = 0;
+  for (let i = 0; i < height.length; i++) {
+    const cur = Math.max(0, Math.min(nextHigher[i], prevHigher[i]) - height[i]);
+    water += cur;
+  }
+  return water;
+}  
+
+// console.log(trap([0,1,0,2,1,0,1,3,2,1,2,1]));
 
 
+/*
+Given n non-negative integers representing the histogram's bar height
+where the width of each bar is 1, find the area of largest rectangle in the histogram.
+Above is a histogram where width of each bar is 1, given height = [2,1,5,6,2,3].
+
+The largest rectangle is shown in the shaded area, which has area = 10 unit.
+*/
+function RangeNode(val, li, ri, lc, rc) {
+  this.val = val;
+  this.li = li;
+  this.ri = ri;
+  this.lc = lc;
+  this.rc = rc;
+}
+
+function RangeTree(list, valueFn) {
+  this.list = list;
+  this.valueFn = valueFn;
+  this.root = this.build(0, list.length - 1);
+}
+
+RangeTree.prototype.build = function(l, r) {
+  if (l === r) {
+    return new RangeNode(this.valueFn(this.list, l), l, r, null, null);
+  }
+  const m = ~~((l + r) / 2);
+  const lc = this.build(l, m);
+  const rc = this.build(m + 1, r);
+  const val = this.valueFn(this.list, lc.val, rc.val);
+  return new RangeNode(val, l, r, lc, rc);
+}
+
+RangeTree.prototype.query = function(l, r) {
+  return this._query(this.root, l, r);
+}
+
+RangeTree.prototype._query = function(node, l, r) {
+  if (node.li === l && node.ri === r) return node.val;
+  const mi = ~~((node.li + node.ri) / 2);
+  if (r <= mi) {
+    return this._query(node.lc, l, r);
+  } else if (l > mi) {
+    return this._query(node.rc, l, r);
+  } else {
+    return this.valueFn(
+      this.list,
+      this._query(node.lc, l, mi),
+      this._query(node.rc, mi + 1, r)
+    );
+  }
+}
+
+/**
+ * @param {number[]} heights
+ * @return {number}
+ */
+var largestRectangleArea = function(heights) {
+  // build a ranged tree that gives min index within a range
+  const rtree = new RangeTree(heights, (list, a, b) => {
+    if (!b || list[a] <= list[b]) return a;
+    return b;
+  });
+
+  // recursively find min in current range, use this to get area
+  // and split around this min index
+  const calc = (l, r) => {
+    if (l > r) return 0;
+    if (l === r) return heights[l];
+    const minIdx = rtree.query(l, r);
+    const curArea = heights[minIdx] * (r - l + 1);
+    const left = calc(l, minIdx - 1);
+    const right = calc(minIdx + 1, r);
+    return Math.max(curArea, left, right);
+  }
+
+  return calc(0, heights.length - 1);
+};
+
+console.log(largestRectangleArea([6, 7, 5, 2, 4, 5, 9, 3]));
 
 

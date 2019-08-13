@@ -78,12 +78,14 @@
         console.log(t1, t2);
 
         // dom content removal
-        //setTimeout(() => {
-        now = performance.now();
-        container.innerHTML = '';
-        console.log(`remove ${t1} nodes using innerHTML took ${performance.now() - now} ms`);
+        setTimeout(() => {
+            now = performance.now();
+            container.innerHTML = '';
+            setTimeout(() => {
+                console.log(`remove ${t1} nodes using innerHTML took ${performance.now() - now} ms`);
 
-            //}, 0);
+            }, 0)
+        }, 0);
         //});
 
         // warm up

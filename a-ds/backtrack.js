@@ -107,4 +107,3 @@ var canPartitionKSubsets = function(nums, k) {
   return dp[(1 << nums.length) - 1];
 };
 
-console.log(canPartitionKSubsets([2,2,2,2,3,4,5], 4));

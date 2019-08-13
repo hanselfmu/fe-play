@@ -57,7 +57,7 @@ var canFinish = function(numCourses, prerequisites) {
   return Object.keys(courses).every(c => courses[c]);
 };
 
-console.log(canFinish(2, [[1, 0], [0, 1]]));
+// console.log(canFinish(2, [[1, 0], [0, 1]]));
 
 
 /*
@@ -155,8 +155,6 @@ var allPathsSourceTarget = function(graph) {
   return search(0);
 };
 
-console.log(allPathsSourceTarget([[1,2], [3], [3], []]));
-
 // dikjstra
 function shortestDistanceAllUndirected(graph) {
   // process all the adjacency lists
@@ -194,7 +192,6 @@ function shortestDistanceAllUndirected(graph) {
       }
     }
   }
-  console.log(matrix);
   return matrix;
 }
 
@@ -275,3 +272,242 @@ const graph = {
 };
 
 // shortestDistanceAllUndirected(graph);
+
+/*
+Given a list accounts, each element accounts[i] is a list of strings, where the first element accounts[i][0] is a name,
+and the rest of the elements are emails representing emails of the account.
+Now, we would like to merge these accounts. Two accounts definitely belong to the same person if there is some email that is common to both accounts.
+Note that even if two accounts have the same name, they may belong to different people as people could have the same name. A person can have
+any number of accounts initially, but all of their accounts definitely have the same name.
+After merging the accounts, return the accounts in the following format: the first element of each account is the name, and the rest of the elements
+are emails in sorted order. The accounts themselves can be returned in any order.
+
+Example 1:
+Input: 
+accounts = [
+  ["John", "johnsmith@mail.com", "john00@mail.com"],
+  ["John", "johnnybravo@mail.com"],
+  ["John", "johnsmith@mail.com", "john_newyork@mail.com"],
+  ["Mary", "mary@mail.com"]
+]
+Output: [["John", 'john00@mail.com', 'john_newyork@mail.com', 'johnsmith@mail.com'],  ["John", "johnnybravo@mail.com"], ["Mary", "mary@mail.com"]]
+Explanation: 
+The first and third John's are the same person as they have the common email "johnsmith@mail.com".
+The second John and Mary are different people as none of their email addresses are used by other accounts.
+We could return these lists in any order, for example the answer [['Mary', 'mary@mail.com'], ['John', 'johnnybravo@mail.com'], 
+['John', 'john00@mail.com', 'john_newyork@mail.com', 'johnsmith@mail.com']] would still be accepted.
+Note:
+
+The length of accounts will be in the range [1, 1000].
+The length of accounts[i] will be in the range [1, 10].
+The length of accounts[i][j] will be in the range [1, 30].
+*/
+/**
+ * @param {string[][]} accounts
+ * @return {string[][]}
+ */
+var accountsMerge = function(accounts) {
+  // we keep an array of accountID and its merged "parent" ID;
+  // for each email, we check which user it belongs to; if it belongs to an existing user, we union them
+  // in the end, for each email, we 
+  const emailToAccountID = new Map();
+  const accountParents = new Array(accounts.length).fill(-1);
+
+  function find(i) {
+    if (accountParents[i] === -1) return -1;
+    if (accountParents[i] !== i) {
+      accountParents[i] = find(accountParents[i]);
+    }
+    return accountParents[i];
+  }
+
+  function union(i, j) {
+    const pi = find(i);
+    const pj = find(j);
+    if (pi === -1 && pj === -1) {
+      accountParents[i] = j;
+      accountParents[j] = j;
+    } else if (pi === -1) {
+      accountParents[i] = pj;
+    } else if (pj === -1) {
+      console.log('pj is -1!!')
+      accountParents[j] = pi;
+    } else {
+      accountParents[pi] = pj;
+    }
+  }
+
+  for (let aid = 0; aid < accounts.length; aid++) {
+    const account = accounts[aid];
+    const name = account[0];
+    for (let ei = 1; ei < account.length; ei++) {
+      const email = account[ei];
+      if (emailToAccountID.has(email)) {
+        const prevAID = emailToAccountID.get(email);
+        union(prevAID, aid);
+        console.log('union',prevAID, aid)
+      } else {
+        emailToAccountID.set(email, aid);
+        if (accountParents[aid] === -1) accountParents[aid] = aid;
+      }
+    }
+  }
+
+  console.log(emailToAccountID);
+  console.log(accountParents);
+  const result = {};
+  emailToAccountID.forEach((aid, email) => {
+    const ancestorID = find(aid);
+    if (!result.hasOwnProperty(ancestorID)) result[ancestorID] = [];
+    result[ancestorID].push(email);
+  });
+
+  return Object.keys(result).map(aid => {
+    const list = result[aid];
+    list.unshift(accounts[aid][0]);
+    return list;
+  });
+};
+
+// console.log(accountsMerge([
+//   ["John", "johnsmith@mail.com", "john00@mail.com"],
+//   ["John", "johnnybravo@mail.com"],
+//   ["John", "johnsmith@mail.com", "john_newyork@mail.com"],
+//   ["Mary", "mary@mail.com"]
+// ]));
+
+/*
+There is a box protected by a password. The password is a sequence of n digits where each digit can be one of the first k digits 0, 1, ..., k-1.
+While entering a password, the last n digits entered will automatically be matched against the correct password.
+For example, assuming the correct password is "345", if you type "012345", the box will open because the correct password matches the suffix of the entered password.
+Return any password of minimum length that is guaranteed to open the box at some point of entering it.
+
+Example 1:
+
+Input: n = 1, k = 2
+Output: "01"
+Note: "10" will be accepted too.
+Example 2:
+
+Input: n = 2, k = 2
+Output: "00110"
+Note: "01100", "10011", "11001" will be accepted too.
+Note:
+n will be in the range [1, 4].
+k will be in the range [1, 10].
+k^n will be at most 4096.
+*/
+/**
+ * @param {number} n
+ * @param {number} k
+ * @return {string}
+ */
+var crackSafe = function(n, k) {
+  // 1. build nodes of "000", "001", "010" ...
+  // 2. build edges of "0", "1", "2" ...
+  // there will be total k^n nodes, which is bound by 4096
+  // this is a dense graph, so we use a matrix to represent this
+  const nodes = createNodes(n, k);
+  console.log(nodes);
+
+  const graph = new Array(nodes.length);
+  for (let i = 0; i < graph.length; i++) {
+    graph[i] = new Array(nodes.length);
+    const u = nodes[i];
+    for (let j = 0; j < nodes.length; j++) {
+      graph[i][j] = lenDiff(u, nodes[j]);
+    }
+  }
+
+  // now build the min-cost Hamilton path
+  return minCostHamilton(graph, nodes);
+
+  function minCostHamilton(G, V) {
+
+  }
+
+  function createNodes(n, k) {
+    let list = [''];
+    for (let pos = 1; pos <= n; pos++) {
+      const curList = [];
+      for (let node of list) {
+        for (let i = 0; i < k; i++) curList.push(node + i);
+      }
+      list = curList;
+    }
+    return list;
+  }
+
+  function lenDiff(u, v) {
+    let i = 0;
+    while (i < u.length && u.substring(i) !== v.substring(0, v.length - i)) {
+      i++;
+    }
+    return i;
+  }
+};
+
+console.log(crackSafe(2, 3));
+
+/*
+Given a set of points in the xy-plane, determine the minimum area of a rectangle formed from these points, with sides parallel to the x and y axes.
+If there isn't any rectangle, return 0.
+
+Example 1:
+
+Input: [[1,1],[1,3],[3,1],[3,3],[2,2]]
+Output: 4
+Example 2:
+
+Input: [[1,1],[1,3],[3,1],[3,3],[4,1],[4,3]]
+Output: 2
+
+Note:
+1 <= points.length <= 500
+0 <= points[i][0] <= 40000
+0 <= points[i][1] <= 40000
+All points are distinct.
+*/
+/**
+ * @param {number[][]} points
+ * @return {number}
+ */
+var minAreaRect = function(points) {
+  if (points.length < 4) return 0;
+  const pointsByX = new Map();
+  const pointsByY = new Map();
+  for (let [ x, y ] of points) {
+    if (!pointsByX.has(x)) pointsByX.set(x, new Set());
+    if (!pointsByY.has(y)) pointsByY.set(y, new Set());
+    pointsByX.get(x).add(y);
+    pointsByY.get(y).add(x);
+  }
+
+  let minArea = Number.POSITIVE_INFINITY;
+  for (let i = 0; i < points.length; i++) {
+    for (let j = i + 1; j < points.length; j++) {
+      const [ x1, y1 ] = points[i];
+      const [ x2, y2 ] = points[j];
+      const potentialArea = area(x1, y1, x2, y2);
+      if (potentialArea === 0 || potentialArea >= minArea) continue;
+      if (pointsByX.get(x2).has(y1) && pointsByY.get(y2).has(x1)) minArea = potentialArea;
+    }
+  }
+
+  return minArea === Number.POSITIVE_INFINITY ? 0 : minArea;
+
+  function area(x1, y1, x2, y2) {
+    return Math.abs(x1 - x2) * Math.abs(y1 - y2);
+  }
+};
+
+// console.log(minAreaRect([[1,1],[1,3],[3,1],[3,3],[2,2]]));
+
+/**
+ * @param {character[][]} board
+ * @param {number[]} click
+ * @return {character[][]}
+ */
+var updateBoard = function(board, click) {
+    
+};

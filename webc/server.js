@@ -1,7 +1,7 @@
-const express = require('express');
+const express = require('./node_modules/express');
 const http = require('http');
 const app = new express();
-const cors = require('cors');
+const cors = require('./node_modules/cors/lib');
 const path = require('path');
 
 const port = process.env.PORT || 3000;
